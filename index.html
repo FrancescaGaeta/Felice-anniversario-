@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>27 anni insieme</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         BIGLIETTO DI ANNIVERSARIO
+         ========================================== -->
+
+    <main id="cardScreen" class="screen card-screen active">
+
+        <div class="stickers" aria-hidden="true">
+            <span>❀</span>
+            <span>🪿</span>
+            <span>🍷</span>
+            <span>🌼</span>
+            <span>🍾</span>
+            <span>❀</span>
+        </div>
+
+        <div class="card-stage">
+
+            <div id="paperCard" class="paper-card">
+
+                <div class="card-inner">
+
+                    <small>9 OTTOBRE 2026</small>
+
+                    <h2>Ce l'avete fatta.</h2>
+
+                    <div class="flourish">❦</div>
+
+                    <p>
+                        27 anni di amore, avventure,
+                        risate, discussioni e soprattutto
+                        <strong>reciproca sopportazione.</strong>
+                    </p>
+
+                    <p>
+                        Un traguardo notevole.
+                        Ma come siete arrivati fin qui?
+                    </p>
+
+                    <button id="journeyBtn" class="paper-button">
+                        Ripercorriamo la storia →
+                    </button>
+
+                </div>
+
+                <div class="card-cover">
+
+                    <div class="cover-frame">
+
+                        <span>❀ &nbsp; ❀</span>
+
+                        <small>9 OTTOBRE</small>
+
+                        <h1>
+                            Buon<br>
+                            <i>Anniversario</i>
+                        </h1>
+
+                        <span class="cover-rule"></span>
+
+                        <p>27 anni insieme</p>
+
+                        <span>❀ &nbsp; ❀</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==========================================
+         MAPPA DEI LIVELLI
+         ========================================== -->
+
+    <section id="mapScreen" class="screen game-screen">
+
+        <header class="topbar">
+
+            <span>27 YEARS TOGETHER</span>
+
+            <span>STORY MODE</span>
+
+        </header>
+
+        <div class="map-heading">
+
+            <div class="eyebrow">
+                SELECT YOUR LEVEL
+            </div>
+
+            <h2>La nostra storia</h2>
+
+            <p>
+                Cinque tappe, ventisette anni,
+                un solo grande traguardo.
+            </p>
+
+        </div>
+
+        <div class="level-map">
+
+            <div class="map-track"></div>
+
+            <div class="map-node available" id="node1">
+                <div class="node-circle">01</div>
+                <small>IL CEROTTO</small>
+            </div>
+
+            <div class="map-node" id="node2">
+                <div class="node-circle">02</div>
+                <small>LA VESPA</small>
+            </div>
+
+            <div class="map-node" id="node3">
+                <div class="node-circle">03</div>
+                <small>DRACULA</small>
+            </div>
+
+            <div class="map-node" id="node4">
+                <div class="node-circle">04</div>
+                <small>CASA</small>
+            </div>
+
+            <div class="map-node" id="node5">
+                <div class="node-circle">05</div>
+                <small>FAMILY</small>
+            </div>
+
+        </div>
+
+        <p class="map-status" id="mapStatus">
+            LIVELLO 01 DISPONIBILE
+        </p>
+
+        <button class="pixel-btn" id="mapPlay">
+            ▶ GIOCA IL LIVELLO 01
+        </button>
+
+    </section>
+
+
+    <!-- ==========================================
+         LEVEL 01 — IL CEROTTO
+         ========================================== -->
+
+    <section id="aidScreen" class="screen game-screen">
+
+        <header class="topbar">
+
+            <span>LEVEL 01 · FIRST AID PANIC</span>
+
+            <button class="text-btn back-map">
+                ← MAPPA
+            </button>
+
+        </header>
+
+        <div class="game-heading">
+
+            <div class="eyebrow">
+                LEVEL 01 · IL PRIMO INCONTRO
+            </div>
+
+            <h2>FIRST AID PANIC!</h2>
+
+            <p>
+                Campo scuola, sulle montagne
+                vicino a Castellammare.
+            </p>
+
+        </div>
+
+        <div class="aid-layout">
+
+            <div>
+
+                <div class="aid-hud">
+
+                    <div>
+                        <small>MAMMA · SVENIMENTO</small>
+                        <div class="meter">
+                            <div id="momMeter"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <small>PAPÀ · IMPRESSIONE</small>
+                        <div class="meter">
+                            <div id="dadMeter"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="aid-scene" id="aidScene">
+
+                    <div class="mountain mountain-a"></div>
+                    <div class="mountain mountain-b"></div>
+
+                    <div class="aid-ground"></div>
+
+                    <div class="aid-kitchen">
+
+                        <div class="kitchen-label">
+                            CAMPO SCUOLA · CUCINA
+                        </div>
+
+                        <div class="aid-person mom">
+
+                            <div class="person-hair"></div>
+                            <div class="person-head">•ᴗ•</div>
+                            <div class="person-body"></div>
+
+                        </div>
+
+                        <div class="aid-person dad">
+
+                            <div class="chef-hat"></div>
+                            <div class="person-head">•o•</div>
+                            <div class="person-body"></div>
+
+                            <div id="woundTarget"
+                                 class="wound-target">
+                                !
+                            </div>
+
+                        </div>
+
+                        <div class="kitchen-counter"></div>
+
+                    </div>
+
+                    <div id="aidBubble" class="scene-bubble">
+                        AIUTO! MI SONO TAGLIATO!
+                    </div>
+
+                </div>
+
+            </div>
+
+            <aside class="aid-tools">
+
+                <div class="eyebrow">
+                    KIT DI EMERGENZA
+                </div>
+
+                <h3 id="aidTitle">
+                    Trova il disinfettante
+                </h3>
+
+                <p id="aidDescription">
+                    Trascinalo sulla mano di papà.
+                </p>
+
+                <div class="tool-grid">
+
+                    <button class="aid-tool" data-tool="coffee">
+                        <span>☕</span>
+                        CAFFÈ
+                    </button>
+
+                    <button class="aid-tool" data-tool="disinfectant">
+                        <span>✚</span>
+                        DISINFETTANTE
+                    </button>
+
+                    <button class="aid-tool" data-tool="wine">
+                        <span>🍷</span>
+                        VINO
+                    </button>
+
+                    <button class="aid-tool hidden"
+                            data-tool="bandage">
+                        <span>🩹</span>
+                        CEROTTO
+                    </button>
+
+                </div>
+
+                <div id="aidClean" class="hidden">
+
+                    <p>
+                        Tieni premuto per disinfettare.
+                    </p>
+
+                    <button id="cleanButton" class="pixel-btn">
+                        TIENI PREMUTO
+                    </button>
+
+                    <div class="clean-meter">
+                        <div id="cleanProgress"></div>
+                    </div>
+
+                </div>
+
+                <p id="aidHint" class="aid-hint">
+                    Trascina un oggetto sulla ferita.
+                    Puoi anche selezionarlo e poi
+                    toccare la ferita.
+                </p>
+
+            </aside>
+
+        </div>
+
+        <div id="aidIntro" class="overlay">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">LEVEL 01</div>
+
+                <h2>UN INCONTRO... TAGLIENTE</h2>
+
+                <p>
+                    Papà faceva il cuoco al campo scuola.
+                    Un coltello, un piccolo incidente
+                    e una futura moglie pronta a soccorrerlo.
+                </p>
+
+                <button id="startAid" class="pixel-btn">
+                    ▶ INIZIA
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="aidComplete" class="overlay hidden">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">
+                    LEVEL 01 COMPLETE
+                </div>
+
+                <h2>UNA FERITA.<br>UNA STORIA.</h2>
+
+                <div class="big-heart">♥</div>
+
+                <p>
+                    Papà è sopravvissuto.
+                    Mamma non è svenuta.
+                    E da un piccolo cerotto
+                    è cominciato tutto.
+                </p>
+
+                <button id="finishAid" class="pixel-btn">
+                    SBLOCCA LEVEL 02 →
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         LEVEL 02 — LA VESPA
+         ========================================== -->
+
+    <section id="vespaScreen" class="screen game-screen">
+
+        <header class="topbar">
+
+            <span>LEVEL 02 · VESPA PANIC</span>
+
+            <button class="text-btn back-map">
+                ← MAPPA
+            </button>
+
+        </header>
+
+        <div class="game-heading">
+
+            <div class="eyebrow">
+                LEVEL 02 · IN VIAGGIO
+            </div>
+
+            <h2>VESPA PANIC!</h2>
+
+            <p>
+                Due innamorati, una Vespa gialla
+                e una freccia che non funziona.
+            </p>
+
+        </div>
+
+        <div class="runner-container">
+
+            <!-- HUD -->
+
+            <div class="runner-hud">
+
+                <div>
+                    <small>DISTANZA</small>
+                    <strong id="distance">0 / 300 m</strong>
+                </div>
+
+                <div>
+                    <small>VITE</small>
+                    <strong id="lives">♥ ♥ ♥</strong>
+                </div>
+
+            </div>
+
+
+            <!-- SCENA -->
+
+            <div class="runner-scene" id="runnerScene">
+
+                <div class="runner-grass"></div>
+
+                <div class="runner-road">
+
+                    <div class="lane-line line-left"></div>
+                    <div class="lane-line line-right"></div>
+
+                </div>
+
+                <div id="obstacleLayer"></div>
+
+
+                <!-- VESPA E GENITORI -->
+
+                <div id="vespa" class="vespa lane-1">
+
+                    <div class="vespa-shadow"></div>
+
+                    <div class="vespa-wheel back-wheel"></div>
+
+                    <div class="vespa-body"></div>
+
+                    <div class="vespa-seat"></div>
+
+                    <div class="vespa-wheel front-wheel"></div>
+
+                    <div class="vespa-handle"></div>
+
+
+                    <!-- MAMMA -->
+
+                    <div class="vespa-rider vespa-mom">
+
+                        <div class="rider-hair"></div>
+
+                        <div class="rider-head"></div>
+
+                        <div class="rider-body"></div>
+
+                        <div id="leftArm" class="rider-arm left-arm"></div>
+
+                        <div id="rightArm" class="rider-arm right-arm"></div>
+
+                    </div>
+
+
+                    <!-- PAPÀ -->
+
+                    <div class="vespa-rider vespa-dad">
+
+                        <div class="rider-hair"></div>
+
+                        <div class="rider-head"></div>
+
+                        <div class="rider-body"></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MESSAGGI -->
+
+                <div id="runnerMessage" class="runner-message hidden">
+                    ATTENZIONE!
+                </div>
+
+                <div id="runnerCountdown" class="runner-countdown"></div>
+
+            </div>
+
+
+            <!-- COMANDI -->
+
+            <div class="runner-controls">
+
+                <button id="moveLeft" class="control-button">
+                    ←
+                </button>
+
+                <div>
+                    <strong>EVITA GLI OSTACOLI!</strong>
+
+                    <small>
+                        Usa ← e → oppure i pulsanti
+                    </small>
+                </div>
+
+                <button id="moveRight" class="control-button">
+                    →
+                </button>
+
+            </div>
+
+            <p class="runner-caption">
+                ↔ FRECCIA ROTTA · MAMMA È L'INDICATORE
+            </p>
+
+        </div>
+
+
+        <!-- INTRO -->
+
+        <div id="vespaIntro" class="overlay">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">LEVEL 02</div>
+
+                <h2>VESPA PANIC!</h2>
+
+                <p>
+                    La Vespa funziona.
+                    La freccia un po' meno.
+                </p>
+
+                <p>
+                    Evita gli ostacoli spostandoti
+                    tra le tre corsie.
+                    Mamma penserà alle segnalazioni!
+                </p>
+
+                <button id="startVespa" class="pixel-btn">
+                    ▶ PARTIAMO!
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- GAME OVER -->
+
+        <div id="vespaGameOver" class="overlay hidden">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">OPS!</div>
+
+                <h2>CHE BOTTA!</h2>
+
+                <p>
+                    Forse sarebbe stato meglio
+                    aggiustare quella freccia.
+                </p>
+
+                <button id="retryVespa" class="pixel-btn">
+                    ↻ RIPROVA
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- VITTORIA -->
+
+        <div id="vespaComplete" class="overlay hidden">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">
+                    LEVEL 02 COMPLETE
+                </div>
+
+                <h2>DESTINAZIONE RAGGIUNTA!</h2>
+
+                <div class="big-heart">♥</div>
+
+                <p>
+                    300 metri percorsi.<br>
+                    Zero frecce funzionanti.<br>
+                    Una mamma utilizzata
+                    come indicatore di direzione.
+                </p>
+
+                <button id="finishVespa" class="pixel-btn">
+                    SBLOCCA LEVEL 03 →
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         LEVEL 03 — DRACULA
+         ========================================== -->
+
+    <section id="draculaScreen" class="screen game-screen">
+
+        <header class="topbar">
+
+            <span>LEVEL 03 · DRACULA NIGHT</span>
+
+            <button class="text-btn back-map">
+                ← MAPPA
+            </button>
+
+        </header>
+
+        <div class="game-heading">
+
+            <div class="eyebrow">
+                LEVEL 03 · MOVIE NIGHT
+            </div>
+
+            <h2>DRACULA NIGHT</h2>
+
+            <p>
+                Una serata al cinema.
+                Un film da ricordare.
+                Ma come finisce?
+            </p>
+
+        </div>
+
+
+        <div class="dracula-container">
+
+            <div class="quiz-heading">
+
+                <span>QUIZ 01 / 01</span>
+
+                <h3>
+                    INDOVINA LA SCENA FINALE
+                </h3>
+
+                <p>
+                    Scegli uno dei tre fotogrammi.
+                </p>
+
+            </div>
+
+
+            <!-- FOTOGRAMMI -->
+
+            <div class="film-options">
+
+                <!-- OPZIONE A -->
+
+                <button class="film-card" data-answer="a">
+
+                    <div class="film-frame">
+
+                        <div class="film-moon"></div>
+
+                        <div class="film-castle"></div>
+
+                        <div class="film-bat">◆</div>
+
+                        <div class="film-ground"></div>
+
+                    </div>
+
+                    <div class="film-label">
+
+                        <span>A</span>
+
+                        <strong>
+                            IL CASTELLO
+                        </strong>
+
+                    </div>
+
+                </button>
+
+
+                <!-- OPZIONE B -->
+
+                <button class="film-card" data-answer="b">
+
+                    <div class="film-frame">
+
+                        <div class="film-window"></div>
+
+                        <div class="film-person"></div>
+
+                        <div class="film-cape"></div>
+
+                        <div class="film-ground"></div>
+
+                    </div>
+
+                    <div class="film-label">
+
+                        <span>B</span>
+
+                        <strong>
+                            L'ULTIMO INCONTRO
+                        </strong>
+
+                    </div>
+
+                </button>
+
+
+                <!-- OPZIONE C -->
+
+                <button class="film-card" data-answer="c">
+
+                    <div class="film-frame">
+
+                        <div class="film-sunrise"></div>
+
+                        <div class="film-cross"></div>
+
+                        <div class="film-ground"></div>
+
+                    </div>
+
+                    <div class="film-label">
+
+                        <span>C</span>
+
+                        <strong>
+                            L'ALBA
+                        </strong>
+
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <!-- FEEDBACK -->
+
+            <div id="quizFeedback" class="quiz-feedback hidden">
+
+                <h3 id="quizResult"></h3>
+
+                <p id="quizExplanation"></p>
+
+                <button id="quizContinue" class="pixel-btn hidden">
+                    CONTINUA →
+                </button>
+
+                <button id="quizRetry" class="pixel-btn hidden">
+                    RIPROVA
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- INTRO -->
+
+        <div id="draculaIntro" class="overlay">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">LEVEL 03</div>
+
+                <h2>DRACULA NIGHT</h2>
+
+                <p>
+                    Certe serate non si dimenticano.
+                    O forse sì?
+                </p>
+
+                <p>
+                    Tre fotogrammi.
+                    Un solo finale.
+                </p>
+
+                <button id="startDracula" class="pixel-btn">
+                    ▶ GIOCA
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- COMPLETAMENTO -->
+
+        <div id="draculaComplete" class="overlay hidden">
+
+            <div class="overlay-card">
+
+                <div class="eyebrow">
+                    LEVEL 03 COMPLETE
+                </div>
+
+                <h2>THE END?</h2>
+
+                <div class="big-heart">♥</div>
+
+                <p>
+                    Il film è finito.
+                    La vostra storia, fortunatamente,
+                    era appena cominciata.
+                </p>
+
+                <button id="finishDracula" class="pixel-btn">
+                    TORNA ALLA MAPPA →
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- =========================================================
+     LEVEL 04 — RICOSTRUISCI LA STANZA
+     ========================================================= -->
+
+<section id="roomScreen" class="screen game-screen">
+
+    <header class="topbar">
+        <span>LEVEL 04 · HOME SWEET HOME</span>
+
+        <button class="text-btn back-map">
+            ← MAPPA
+        </button>
+    </header>
+
+
+    <div class="game-heading">
+
+        <div class="eyebrow">
+            LEVEL 04 · UN POSTO SPECIALE
+        </div>
+
+        <h2>HOME SWEET HOME</h2>
+
+        <p>
+            Ci sono posti che restano nella memoria
+            anche dopo tantissimi anni.
+        </p>
+
+    </div>
+
+
+    <div class="room-game-layout">
+
+        <!-- =================================================
+             STANZA
+             ================================================= -->
+
+        <div>
+
+            <div class="room-status">
+
+                <span>
+                    OGGETTI SISTEMATI
+                </span>
+
+                <strong id="roomCounter">
+                    0 / 7
+                </strong>
+
+            </div>
+
+
+            <div id="roomBoard" class="room-board">
+
+                <!-- muro -->
+
+                <div class="room-wall"></div>
+
+
+                <!-- pavimento -->
+
+                <div class="room-floor"></div>
+
+
+                <!-- =================================================
+                     POSIZIONI CORRETTE
+                     ================================================= -->
+
+                <div
+                    class="room-target target-fireplace"
+                    data-target="fireplace">
+                </div>
+
+                <div
+                    class="room-target target-sofa"
+                    data-target="sofa">
+                </div>
+
+                <div
+                    class="room-target target-table"
+                    data-target="table">
+                </div>
+
+                <div
+                    class="room-target target-chair-left"
+                    data-target="chair-left">
+                </div>
+
+                <div
+                    class="room-target target-chair-right"
+                    data-target="chair-right">
+                </div>
+
+                <div
+                    class="room-target target-lamp"
+                    data-target="lamp">
+                </div>
+
+                <div
+                    class="room-target target-coffee"
+                    data-target="coffee">
+                </div>
+
+
+                <!-- =================================================
+                     LUCE
+                     ================================================= -->
+
+                <div id="roomLightGlow" class="room-light-glow"></div>
+
+
+                <!-- messaggio -->
+
+                <div id="roomMessage" class="room-message">
+                    RICOSTRUISCI LA STANZA
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INVENTARIO
+             ================================================= -->
+
+        <aside class="room-inventory">
+
+            <div class="eyebrow">
+                INVENTARIO
+            </div>
+
+            <h3>
+                Rimetti tutto al suo posto
+            </h3>
+
+            <p>
+                Trascina gli oggetti all'interno
+                della stanza.
+            </p>
+
+
+            <div class="inventory-grid">
+
+
+                <!-- CAMINO -->
+
+                <div
+                    class="room-object"
+                    data-room-object="fireplace">
+
+                    <div class="mini-fireplace">
+
+                        <div class="mini-fire"></div>
+
+                    </div>
+
+                    <span>
+                        CAMINO
+                    </span>
+
+                </div>
+
+
+                <!-- DIVANO -->
+
+                <div
+                    class="room-object"
+                    data-room-object="sofa">
+
+                    <div class="mini-sofa">
+
+                        <div></div>
+
+                    </div>
+
+                    <span>
+                        DIVANO
+                    </span>
+
+                </div>
+
+
+                <!-- TAVOLO -->
+
+                <div
+                    class="room-object"
+                    data-room-object="table">
+
+                    <div class="mini-table">
+
+                        <div class="mini-table-top"></div>
+
+                        <div class="mini-table-leg"></div>
+
+                    </div>
+
+                    <span>
+                        TAVOLINO
+                    </span>
+
+                </div>
+
+
+                <!-- SEDIA SINISTRA -->
+
+                <div
+                    class="room-object"
+                    data-room-object="chair-left">
+
+                    <div class="mini-chair chair-facing-right">
+
+                        <div class="chair-seat"></div>
+                        <div class="chair-back"></div>
+
+                    </div>
+
+                    <span>
+                        SEDIA
+                    </span>
+
+                </div>
+
+
+                <!-- SEDIA DESTRA -->
+
+                <div
+                    class="room-object"
+                    data-room-object="chair-right">
+
+                    <div class="mini-chair chair-facing-left">
+
+                        <div class="chair-seat"></div>
+                        <div class="chair-back"></div>
+
+                    </div>
+
+                    <span>
+                        SEDIA
+                    </span>
+
+                </div>
+
+
+                <!-- LAMPADARIO -->
+
+                <div
+                    class="room-object"
+                    data-room-object="lamp">
+
+                    <div class="mini-lamp">
+
+                        <div class="lamp-wire"></div>
+
+                        <div class="lamp-shade"></div>
+
+                        <div class="lamp-green"></div>
+
+                    </div>
+
+                    <span>
+                        LAMPADARIO
+                    </span>
+
+                </div>
+
+
+                <!-- CAFFÈ -->
+
+                <div
+                    class="room-object"
+                    data-room-object="coffee">
+
+                    <div class="mini-coffee">
+
+                        <div class="coffee-cup"></div>
+                        <div class="coffee-cup"></div>
+
+                    </div>
+
+                    <span>
+                        CAFFÈ
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p class="room-tip">
+                Ogni oggetto ha il suo posto.
+                Se sei abbastanza vicino,
+                verrà sistemato automaticamente.
+            </p>
+
+        </aside>
+
+    </div>
+
+
+    <!-- INTRO -->
+
+    <div id="roomIntro" class="overlay">
+
+        <div class="overlay-card">
+
+            <div class="eyebrow">
+                LEVEL 04
+            </div>
+
+            <h2>
+                RICOSTRUISCI LA STANZA
+            </h2>
+
+            <p>
+                Un camino a sinistra.
+                Un divano a destra.
+                Al centro un tavolino,
+                due sedie e due tazzine di caffè.
+            </p>
+
+            <p>
+                E sopra di loro,
+                quel lampadario con il verde al centro.
+            </p>
+
+            <button id="startRoom" class="pixel-btn">
+                ▶ RICOSTRUISCI
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- COMPLETE -->
+
+    <div id="roomComplete" class="overlay hidden">
+
+        <div class="overlay-card">
+
+            <div class="eyebrow">
+                LEVEL 04 COMPLETE
+            </div>
+
+            <h2>
+                LUCE ACCESA!
+            </h2>
+
+            <div class="pixel-bulb">
+                ✦
+            </div>
+
+            <p>
+                Tutto è tornato al suo posto.
+            </p>
+
+            <p>
+                A volte bastano una stanza,
+                due sedie e un caffè
+                per conservare un ricordo.
+            </p>
+
+            <button id="finishRoom" class="pixel-btn">
+                SBLOCCA LEVEL 05 →
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     LEVEL 05 — FAMILY FOOD
+     ========================================================= -->
+
+<section id="familyScreen" class="screen game-screen">
+
+    <header class="topbar">
+
+        <span>
+            LEVEL 05 · FAMILY DINNER
+        </span>
+
+        <button class="text-btn back-map">
+            ← MAPPA
+        </button>
+
+    </header>
+
+
+    <div class="game-heading">
+
+        <div class="eyebrow">
+            FINAL LEVEL
+        </div>
+
+        <h2>FAMILY DINNER!</h2>
+
+        <p>
+            Cinque persone.
+            Gusti molto diversi.
+            E qualcuno che evidentemente
+            ha avuto la parte peggiore del menù.
+        </p>
+
+    </div>
+
+
+    <div class="family-game">
+
+        <!-- =================================================
+             FAMIGLIA
+             ================================================= -->
+
+        <div class="family-side">
+
+            <div
+                id="familyTarget"
+                class="food-target family-target"
+                data-food-target="family">
+
+                <div class="target-label">
+                    THE FAMILY
+                </div>
+
+
+                <div class="family-characters">
+
+                    <!-- STEFANIA -->
+
+                    <div class="family-person">
+
+                        <div class="family-avatar avatar-mom">
+                            <div class="avatar-hair"></div>
+                            <div class="avatar-face">•ᴗ•</div>
+                            <div class="avatar-body"></div>
+                        </div>
+
+                        <span>STEFANIA</span>
+
+                    </div>
+
+
+                    <!-- ANTONIO -->
+
+                    <div class="family-person">
+
+                        <div class="family-avatar avatar-dad">
+                            <div class="avatar-hair"></div>
+                            <div class="avatar-face">•ᴗ•</div>
+                            <div class="avatar-body"></div>
+                        </div>
+
+                        <span>ANTONIO</span>
+
+                    </div>
+
+
+                    <!-- CASPER -->
+
+                    <div class="family-person">
+
+                        <div class="family-avatar avatar-casper">
+                            <div class="avatar-hair"></div>
+                            <div class="avatar-face">•ᴗ•</div>
+                            <div class="avatar-body"></div>
+                        </div>
+
+                        <span>CASPER</span>
+
+                    </div>
+
+
+                    <!-- LUDOVICA -->
+
+                    <div class="family-person">
+
+                        <div class="family-avatar avatar-ludo">
+                            <div class="avatar-hair"></div>
+                            <div class="avatar-face">•ᴗ•</div>
+                            <div class="avatar-body"></div>
+                        </div>
+
+                        <span>LUDOVICA</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="family-table">
+
+                    <div class="plate plate-1"></div>
+                    <div class="plate plate-2"></div>
+                    <div class="plate plate-3"></div>
+                    <div class="plate plate-4"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PIATTO CENTRALE
+             ================================================= -->
+
+        <div class="food-center">
+
+            <div class="food-progress">
+
+                <span>
+                    PIATTO
+                </span>
+
+                <strong id="foodProgress">
+                    1 / 8
+                </strong>
+
+            </div>
+
+
+            <div id="foodCard" class="food-card">
+
+                <div id="foodIcon" class="food-icon">
+                    🍝
+                </div>
+
+                <h3 id="foodName">
+                    SPAGHETTI ALLE VONGOLE
+                </h3>
+
+                <p>
+                    A chi appartiene?
+                </p>
+
+            </div>
+
+
+            <div id="foodFeedback" class="food-feedback">
+                TRASCINA IL PIATTO
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FRANCESCA
+             ================================================= -->
+
+        <div class="family-side">
+
+            <div
+                id="francescaTarget"
+                class="food-target francesca-target"
+                data-food-target="francesca">
+
+                <div class="target-label">
+                    FRANCESCA
+                </div>
+
+
+                <div class="francesca-alone">
+
+                    <div class="family-avatar avatar-francesca">
+
+                        <div class="avatar-hair"></div>
+
+                        <div class="avatar-face">
+                            •_•
+                        </div>
+
+                        <div class="avatar-body"></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="sad-table">
+
+                    <div class="sad-plate"></div>
+
+                    <span>
+                        ?
+                    </span>
+
+                </div>
+
+
+                <p class="francesca-caption">
+                    "Per me va bene qualsiasi cosa."
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INTRO -->
+
+    <div id="familyIntro" class="overlay">
+
+        <div class="overlay-card">
+
+            <div class="eyebrow">
+                FINAL LEVEL
+            </div>
+
+            <h2>
+                CHI MANGIA COSA?
+            </h2>
+
+            <p>
+                Dopo tanti anni insieme,
+                una cosa dovrebbe essere chiara:
+                chi mangia cosa.
+            </p>
+
+            <p>
+                Trascina ogni piatto
+                verso il lato giusto.
+            </p>
+
+            <button id="startFamily" class="pixel-btn">
+                ▶ SERVI LA CENA
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- COMPLETE -->
+
+    <div id="familyComplete" class="overlay hidden">
+
+        <div class="overlay-card">
+
+            <div class="eyebrow">
+                ALL LEVELS COMPLETE
+            </div>
+
+            <h2>
+                FAMILY COMPLETE!
+            </h2>
+
+            <div class="big-heart">
+                ♥
+            </div>
+
+            <p>
+                Stefania, Antonio,
+                Casper, Ludovica e Francesca.
+            </p>
+
+            <p>
+                Cinque persone,
+                qualche gusto discutibile
+                e una famiglia intera.
+            </p>
+
+            <button id="finishFamily" class="pixel-btn">
+                FINISH GAME →
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     FINALE
+     ========================================================= -->
+
+<section id="finalScreen" class="screen final-screen">
+
+    <div class="final-decoration final-flower-1">
+        ❀
+    </div>
+
+    <div class="final-decoration final-flower-2">
+        ❦
+    </div>
+
+    <div class="final-decoration final-flower-3">
+        ❀
+    </div>
+
+
+    <div class="final-card">
+
+        <p class="final-date">
+            9 OTTOBRE 2026
+        </p>
+
+        <div class="final-flourish">
+            ❦
+        </div>
+
+        <h1>
+            Buon anniversario.
+        </h1>
+
+        <p class="final-years">
+            27 anni insieme.
+        </p>
+
+        <div class="final-rule"></div>
+
+        <p>
+            Alla fine ce l'avete fatta:
+            avete superato ferite,
+            Vespe senza frecce,
+            Dracula, stanze da ricostruire
+            e perfino cinque persone
+            con gusti completamente diversi.
+        </p>
+
+        <p>
+            Ma soprattutto avete costruito,
+            un pezzo alla volta,
+            tutto quello che oggi
+            chiamiamo casa.
+        </p>
+
+        <p class="final-big-message">
+            Auguri mamma e papà.
+        </p>
+
+        <p>
+            Vi vogliamo bene.
+        </p>
+
+        <div class="final-heart">
+            ♥
+        </div>
+
+        <small>
+            GAME COMPLETED · 27 YEARS
+        </small>
+
+    </div>
+
+</section>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
