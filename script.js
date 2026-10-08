@@ -2082,7 +2082,7 @@ const foods = [
 
     {
         name: "BARBABIETOLE",
-        icon: "🫜",
+        icon: "🍠",
         target: "francesca"
     },
 
@@ -2093,14 +2093,14 @@ const foods = [
     },
 
     {
-        name: "PIADINA",
+        name: "PIADINA SOSPETTA",
         icon: "🫓",
         target: "francesca"
     },
 
     {
-        name: "CARNE ARROSTITA",
-        icon: "🥩",
+        name: "PANUOZZO",
+        icon: "🫔",
         target: "family"
     },
 
@@ -2111,14 +2111,14 @@ const foods = [
     },
 
     {
-        name: "PASTA AL FORNO",
+        name: "PARMIGIANA",
         icon: "🍲",
         target: "family"
     },
 
     {
-        name: "INSALATINA SOSPETTA",
-        icon: "🥗",
+        name: "PASTA AL RADICCHIO",
+        icon: "🥣",
         target: "francesca"
     }
 
