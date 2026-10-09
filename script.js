@@ -45,6 +45,13 @@ function hideOverlay(id) {
     }
 }
 
+function isTouchLayout() {
+    return (
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.innerWidth <= 750
+    );
+}
+
 function showScreen(id) {
 
     stopRunner();
@@ -81,17 +88,6 @@ function showScreen(id) {
    BIGLIETTO
    ========================================================= */
 
-window.addEventListener("DOMContentLoaded", () => {
-
-    setTimeout(() => {
-
-        if ($("paperCard")) {
-            $("paperCard").classList.add("open");
-        }
-
-    }, 1200);
-
-});
 
 
 $("journeyBtn").addEventListener("click", () => {
@@ -195,8 +191,6 @@ function openCurrentLevel() {
 $("mapPlay").addEventListener("click", openCurrentLevel);
 
 
-/* I livelli già sbloccati possono essere rigiocati */
-
 for (let i = 1; i <= 5; i++) {
 
     const node = $("node" + i);
@@ -212,8 +206,6 @@ for (let i = 1; i <= 5; i++) {
     });
 }
 
-
-/* pulsanti MAPPA */
 
 document.querySelectorAll(".back-map").forEach(button => {
 
@@ -283,25 +275,36 @@ function resetAid() {
 
     cleanValue = 0;
 
-    $("cleanProgress").style.width = "0%";
+    stopCleaning();
 
-    $("woundTarget").classList.remove("healed");
-    $("woundTarget").textContent = "!";
+    if ($("cleanProgress")) {
+        $("cleanProgress").style.width = "0%";
+    }
 
-    $("aidClean").classList.add("hidden");
+    if ($("pressurePercent")) {
+        $("pressurePercent").textContent = "0%";
+    }
 
-    document.querySelectorAll(".aid-tool").forEach(tool => {
+    $("woundTarget").classList.remove(
+        "healed",
+        "bleeding",
+        "pressing",
+        "pressure-complete"
+    );
 
-        tool.classList.remove(
-            "selected",
-            "hidden"
-        );
+    if ($("woundSymbol")) {
+        $("woundSymbol").textContent = "!";
+    }
 
-    });
+    $("aidKitPhase").classList.remove("hidden");
+    $("aidPressurePhase").classList.add("hidden");
+    $("aidBandagePhase").classList.add("hidden");
 
     document
-        .querySelector('[data-tool="bandage"]')
-        .classList.add("hidden");
+        .querySelectorAll(".aid-tool")
+        .forEach(tool => {
+            tool.classList.remove("selected");
+        });
 
     updateAidMeters();
     updateAidStage();
@@ -310,18 +313,20 @@ function resetAid() {
 
     panicInterval = setInterval(() => {
 
-        if (!aidActive) return;
+        if (!aidActive) {
+            return;
+        }
 
         dadPanic = Math.min(
             100,
-            dadPanic + 0.45
+            dadPanic + 0.35
         );
 
         if (aidStep === 2) {
 
             momPanic = Math.min(
                 100,
-                momPanic + 0.45
+                momPanic + 0.25
             );
 
         }
@@ -329,6 +334,7 @@ function resetAid() {
         updateAidMeters();
 
     }, 500);
+
 }
 
 
@@ -361,51 +367,63 @@ function updateAidStage() {
 
     if (aidStep === 1) {
 
+        $("aidKitPhase").classList.remove("hidden");
+        $("aidPressurePhase").classList.add("hidden");
+        $("aidBandagePhase").classList.add("hidden");
+
         $("aidTitle").textContent =
             "1. Trova il disinfettante";
 
         $("aidDescription").textContent =
-            "Trascina la bottiglietta sulla ferita.";
+            isTouchLayout()
+                ? "Tocca il disinfettante e poi la ferita."
+                : "Trascina la bottiglietta sulla ferita.";
 
         $("aidBubble").textContent =
             "AIUTO! MI SONO TAGLIATO!";
+
+        $("woundTarget").classList.remove(
+            "bleeding",
+            "pressing"
+        );
+
+        $("woundSymbol").textContent = "!";
 
     }
 
 
     if (aidStep === 2) {
 
-        $("aidTitle").textContent =
-            "2. Disinfetta la ferita";
+        selectedTool = null;
 
-        $("aidDescription").textContent =
-            "Tieni premuto senza impressionarti.";
-
-        $("aidClean").classList.remove("hidden");
+        $("aidKitPhase").classList.add("hidden");
+        $("aidPressurePhase").classList.remove("hidden");
+        $("aidBandagePhase").classList.add("hidden");
 
         $("aidBubble").textContent =
-            "NON GUARDARE IL SANGUE!";
+            "FERMA IL SANGUE!";
+
+        $("woundTarget").classList.add("bleeding");
+
+        $("woundSymbol").textContent = "";
 
     }
 
 
     if (aidStep === 3) {
 
-        $("aidTitle").textContent =
-            "3. Applica il cerotto";
+        stopCleaning();
 
-        $("aidDescription").textContent =
-            "Trascina il cerotto sulla mano di papà.";
+        $("aidKitPhase").classList.add("hidden");
+        $("aidPressurePhase").classList.add("hidden");
+        $("aidBandagePhase").classList.remove("hidden");
 
-        $("aidClean").classList.add("hidden");
+        $("woundTarget").classList.remove(
+            "bleeding",
+            "pressing"
+        );
 
-        document.querySelectorAll(".aid-tool").forEach(tool => {
-            tool.classList.add("hidden");
-        });
-
-        document
-            .querySelector('[data-tool="bandage"]')
-            .classList.remove("hidden");
+        $("woundSymbol").textContent = "✓";
 
         $("aidBubble").textContent =
             "CI SIAMO QUASI!";
@@ -416,51 +434,88 @@ function updateAidStage() {
 
 
 /* =========================================================
-   DRAG OGGETTI LEVEL 01
+   DRAG / TAP OGGETTI LEVEL 01
    ========================================================= */
 
-document.querySelectorAll(".aid-tool").forEach(tool => {
+document
+    .querySelectorAll(".aid-tool")
+    .forEach(tool => {
 
-    tool.addEventListener("pointerdown", event => {
+        tool.addEventListener(
+            "pointerdown",
+            event => {
 
-        if (!aidActive || aidStep === 2) {
-            return;
-        }
+                if (!aidActive || aidStep === 2) {
+                    return;
+                }
 
-        event.preventDefault();
+                const type = tool.dataset.tool;
 
-        const type = tool.dataset.tool;
+                if (
+                    aidStep === 1 &&
+                    type === "bandage"
+                ) {
+                    return;
+                }
 
-        selectedTool = type;
+                if (
+                    aidStep === 3 &&
+                    type !== "bandage"
+                ) {
+                    return;
+                }
 
-        document.querySelectorAll(".aid-tool").forEach(item => {
-            item.classList.remove("selected");
-        });
+                selectedTool = type;
 
-        tool.classList.add("selected");
+                document
+                    .querySelectorAll(".aid-tool")
+                    .forEach(item => {
+                        item.classList.remove("selected");
+                    });
 
-        const ghost = document.createElement("div");
+                tool.classList.add("selected");
 
-        ghost.className = "drag-ghost";
 
-        ghost.textContent =
-            tool.querySelector("span").textContent;
+                /*
+                   SU TELEFONO:
+                   niente ghost da trascinare.
+                   Si seleziona l'oggetto e poi
+                   si tocca la ferita.
+                */
 
-        document.body.appendChild(ghost);
+                if (isTouchLayout()) {
+                    return;
+                }
 
-        aidDrag = {
-            type,
-            ghost
-        };
 
-        moveAidGhost(
-            event.clientX,
-            event.clientY
+                event.preventDefault();
+
+                const ghost =
+                    document.createElement("div");
+
+                ghost.className =
+                    "drag-ghost";
+
+                ghost.textContent =
+                    tool.querySelector("span")
+                        .textContent;
+
+                document.body.appendChild(ghost);
+
+                aidDrag = {
+                    type,
+                    ghost
+                };
+
+                moveAidGhost(
+                    event.clientX,
+                    event.clientY
+                );
+
+            }
         );
 
     });
-
-});
 
 
 function moveAidGhost(x, y) {
@@ -476,59 +531,89 @@ function moveAidGhost(x, y) {
 }
 
 
-document.addEventListener("pointermove", event => {
+document.addEventListener(
+    "pointermove",
+    event => {
 
-    if (!aidDrag) return;
+        if (!aidDrag) return;
 
-    event.preventDefault();
+        event.preventDefault();
 
-    moveAidGhost(
-        event.clientX,
-        event.clientY
-    );
+        moveAidGhost(
+            event.clientX,
+            event.clientY
+        );
 
-});
+    },
+    { passive: false }
+);
 
 
-document.addEventListener("pointerup", event => {
+document.addEventListener(
+    "pointerup",
+    event => {
 
-    if (!aidDrag) return;
+        if (!aidDrag) {
+            return;
+        }
 
-    const target = $("woundTarget");
+        const target =
+            $("woundTarget");
 
-    const rect =
-        target.getBoundingClientRect();
+        const rect =
+            target.getBoundingClientRect();
 
-    const inside =
-        event.clientX >= rect.left - 30 &&
-        event.clientX <= rect.right + 30 &&
-        event.clientY >= rect.top - 30 &&
-        event.clientY <= rect.bottom + 30;
+        const tolerance = 30;
 
-    const type = aidDrag.type;
+        const inside =
+            event.clientX >= rect.left - tolerance &&
+            event.clientX <= rect.right + tolerance &&
+            event.clientY >= rect.top - tolerance &&
+            event.clientY <= rect.bottom + tolerance;
 
-    aidDrag.ghost.remove();
-    aidDrag = null;
+        const type =
+            aidDrag.type;
 
-    if (inside) {
-        useAidTool(type);
+        aidDrag.ghost.remove();
+        aidDrag = null;
+
+        if (inside) {
+            useAidTool(type);
+        }
+
     }
+);
 
-});
 
+/* =========================================================
+   TAP SULLA FERITA
+   ========================================================= */
 
-$("woundTarget").addEventListener("click", () => {
+$("woundTarget").addEventListener(
+    "click",
+    () => {
 
-    if (selectedTool) {
-        useAidTool(selectedTool);
+        if (aidStep === 2) {
+            return;
+        }
+
+        if (selectedTool) {
+            useAidTool(selectedTool);
+        }
+
     }
+);
 
-});
 
+/* =========================================================
+   USO OGGETTI
+   ========================================================= */
 
 function useAidTool(type) {
 
-    if (!aidActive) return;
+    if (!aidActive) {
+        return;
+    }
 
 
     if (aidStep === 1) {
@@ -560,7 +645,9 @@ function useAidTool(type) {
             );
 
             $("aidBubble").textContent =
-                "FORSE NON È IL CASO!";
+                type === "wine"
+                    ? "IL VINO FORSE DOPO!"
+                    : "FORSE NON È IL CASO!";
 
         }
 
@@ -579,9 +666,13 @@ function useAidTool(type) {
 
     selectedTool = null;
 
-    document.querySelectorAll(".aid-tool").forEach(tool => {
-        tool.classList.remove("selected");
-    });
+    document
+        .querySelectorAll(".aid-tool")
+        .forEach(tool => {
+
+            tool.classList.remove("selected");
+
+        });
 
     updateAidMeters();
 
@@ -589,10 +680,10 @@ function useAidTool(type) {
 
 
 /* =========================================================
-   DISINFEZIONE
+   PRESSIONE SULLA FERITA
    ========================================================= */
 
-function startCleaning() {
+function startCleaning(event) {
 
     if (
         !aidActive ||
@@ -602,34 +693,48 @@ function startCleaning() {
         return;
     }
 
-    cleanInterval = setInterval(() => {
+    if (event) {
+        event.preventDefault();
+    }
 
-        cleanValue += 4;
+    $("woundTarget")
+        .classList
+        .add("pressing");
 
-        momPanic = Math.min(
-            100,
-            momPanic + 0.7
-        );
+    $("aidBubble").textContent =
+        "TIENI PREMUTO!";
 
-        $("cleanProgress").style.width =
-            Math.min(
+    cleanInterval =
+        setInterval(() => {
+
+            cleanValue += 3;
+
+            cleanValue =
+                Math.min(
+                    100,
+                    cleanValue
+                );
+
+            dadPanic = Math.max(
+                0,
+                dadPanic - 0.8
+            );
+
+            momPanic = Math.min(
                 100,
-                cleanValue
-            ) + "%";
+                momPanic + 0.12
+            );
 
-        updateAidMeters();
+            updatePressureUI();
+            updateAidMeters();
 
-        if (cleanValue >= 100) {
+            if (cleanValue >= 100) {
 
-            stopCleaning();
+                finishPressureGame();
 
-            aidStep = 3;
+            }
 
-            updateAidStage();
-
-        }
-
-    }, 80);
+        }, 75);
 
 }
 
@@ -643,44 +748,164 @@ function stopCleaning() {
 
     }
 
+    const wound =
+        $("woundTarget");
+
+    if (wound) {
+        wound.classList.remove("pressing");
+    }
+
 }
 
 
-$("cleanButton").addEventListener(
+function releasePressure() {
+
+    if (
+        aidStep !== 2 ||
+        !aidActive
+    ) {
+        stopCleaning();
+        return;
+    }
+
+    const wasPressing =
+        cleanInterval !== null;
+
+    stopCleaning();
+
+    if (
+        wasPressing &&
+        cleanValue > 0 &&
+        cleanValue < 100
+    ) {
+
+        cleanValue = Math.max(
+            0,
+            cleanValue - 14
+        );
+
+        dadPanic = Math.min(
+            100,
+            dadPanic + 4
+        );
+
+        $("aidBubble").textContent =
+            "NON MOLLARE!";
+
+        updatePressureUI();
+        updateAidMeters();
+
+    }
+
+}
+
+
+function updatePressureUI() {
+
+    const value =
+        Math.round(cleanValue);
+
+    $("cleanProgress").style.width =
+        value + "%";
+
+    $("pressurePercent").textContent =
+        value + "%";
+
+}
+
+
+function finishPressureGame() {
+
+    stopCleaning();
+
+    cleanValue = 100;
+
+    updatePressureUI();
+
+    $("woundTarget")
+        .classList
+        .remove("bleeding");
+
+    $("woundTarget")
+        .classList
+        .add("pressure-complete");
+
+    $("aidBubble").textContent =
+        "SANGUE FERMATO!";
+
+    setTimeout(() => {
+
+        $("woundTarget")
+            .classList
+            .remove("pressure-complete");
+
+        aidStep = 3;
+
+        updateAidStage();
+
+    }, 650);
+
+}
+
+
+$("woundTarget").addEventListener(
     "pointerdown",
-    startCleaning
-);
-
-document.addEventListener(
-    "pointerup",
-    stopCleaning
-);
-
-document.addEventListener(
-    "pointercancel",
-    stopCleaning
-);
-
-$("cleanButton").addEventListener(
-    "keydown",
     event => {
 
-        if (
-            event.code === "Space" ||
-            event.code === "Enter"
-        ) {
+        if (aidStep === 2) {
 
-            event.preventDefault();
-            startCleaning();
+            try {
+                $("woundTarget")
+                    .setPointerCapture(
+                        event.pointerId
+                    );
+            } catch (error) {
+                /* niente */
+            }
+
+            startCleaning(event);
 
         }
 
     }
 );
 
-$("cleanButton").addEventListener(
-    "keyup",
-    stopCleaning
+
+$("woundTarget").addEventListener(
+    "pointerup",
+    event => {
+
+        if (aidStep === 2) {
+
+            event.preventDefault();
+            releasePressure();
+
+        }
+
+    }
+);
+
+
+$("woundTarget").addEventListener(
+    "pointercancel",
+    releasePressure
+);
+
+
+$("woundTarget").addEventListener(
+    "lostpointercapture",
+    () => {
+
+        if (
+            aidStep === 2 &&
+            cleanInterval
+        ) {
+
+            releasePressure();
+
+        }
+
+    }
 );
 
 
@@ -692,10 +917,22 @@ function completeAid() {
 
     aidActive = false;
 
+    stopCleaning();
+
     clearInterval(panicInterval);
 
-    $("woundTarget").classList.add("healed");
-    $("woundTarget").textContent = "✓";
+    $("woundTarget")
+        .classList
+        .remove(
+            "bleeding",
+            "pressing"
+        );
+
+    $("woundTarget")
+        .classList
+        .add("healed");
+
+    $("woundSymbol").textContent = "✓";
 
     $("aidBubble").textContent =
         "MEDICAZIONE COMPLETATA!";
@@ -709,17 +946,21 @@ function completeAid() {
 }
 
 
-$("finishAid").addEventListener("click", () => {
+$("finishAid").addEventListener(
+    "click",
+    () => {
 
-    unlockedLevel = Math.max(
-        unlockedLevel,
-        2
-    );
+        unlockedLevel =
+            Math.max(
+                unlockedLevel,
+                2
+            );
 
-    showScreen("mapScreen");
-    updateMap();
+        showScreen("mapScreen");
+        updateMap();
 
-});
+    }
+);
 
 
 /* =========================================================
@@ -743,10 +984,6 @@ const RUNNER_TARGET = 300;
 const RUNNER_SPEED = 190;
 
 
-/* =========================================================
-   APERTURA LEVEL 02
-   ========================================================= */
-
 function openVespa() {
 
     showScreen("vespaScreen");
@@ -766,10 +1003,6 @@ $("startVespa").addEventListener("click", () => {
 
 });
 
-
-/* =========================================================
-   START RUNNER
-   ========================================================= */
 
 function startRunner() {
 
@@ -817,10 +1050,7 @@ function startRunner() {
                     .contains("active")
             ) {
 
-                clearInterval(
-                    countdownTimer
-                );
-
+                clearInterval(countdownTimer);
                 return;
             }
 
@@ -834,9 +1064,7 @@ function startRunner() {
 
             } else {
 
-                clearInterval(
-                    countdownTimer
-                );
+                clearInterval(countdownTimer);
 
                 $("runnerCountdown")
                     .textContent = "";
@@ -854,10 +1082,6 @@ function startRunner() {
 
 }
 
-
-/* =========================================================
-   MOVIMENTO VESPA
-   ========================================================= */
 
 function moveVespa(direction) {
 
@@ -963,10 +1187,6 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   OSTACOLI
-   ========================================================= */
-
 function createObstacle() {
 
     const lane =
@@ -1016,10 +1236,6 @@ function createObstacle() {
 }
 
 
-/* =========================================================
-   LOOP RUNNER
-   ========================================================= */
-
 function updateRunner(timestamp) {
 
     if (!runnerActive) return;
@@ -1040,9 +1256,7 @@ function updateRunner(timestamp) {
     $("distance").textContent =
         Math.min(
             RUNNER_TARGET,
-            Math.floor(
-                runnerDistance
-            )
+            Math.floor(runnerDistance)
         ) +
         " / 300 m";
 
@@ -1051,7 +1265,6 @@ function updateRunner(timestamp) {
     if (spawnTimer >= 1.15) {
 
         spawnTimer = 0;
-
         createObstacle();
 
     }
@@ -1086,8 +1299,7 @@ function updateRunner(timestamp) {
             if (
                 !obstacle.hit &&
                 runnerInvulnerable <= 0 &&
-                obstacle.lane ===
-                    vespaLane
+                obstacle.lane === vespaLane
             ) {
 
                 const obstacleRect =
@@ -1096,16 +1308,13 @@ function updateRunner(timestamp) {
 
                 const collision =
                     obstacleRect.bottom >
-                        vespaRect.top +
-                        25 &&
+                        vespaRect.top + 25 &&
                     obstacleRect.top <
-                        vespaRect.bottom -
-                        20;
+                        vespaRect.bottom - 20;
 
                 if (collision) {
 
                     obstacle.hit = true;
-
                     hitVespa();
 
                 }
@@ -1124,9 +1333,7 @@ function updateRunner(timestamp) {
                     sceneHeight + 100
                 ) {
 
-                    obstacle.element
-                        .remove();
-
+                    obstacle.element.remove();
                     return false;
                 }
 
@@ -1162,10 +1369,6 @@ function updateRunner(timestamp) {
 
 }
 
-
-/* =========================================================
-   COLLISIONE
-   ========================================================= */
 
 function hitVespa() {
 
@@ -1219,10 +1422,6 @@ function showRunnerMessage(text) {
 }
 
 
-/* =========================================================
-   STOP RUNNER
-   ========================================================= */
-
 function stopRunner() {
 
     runnerActive = false;
@@ -1240,17 +1439,10 @@ function stopRunner() {
 }
 
 
-/* =========================================================
-   GAME OVER / WIN
-   ========================================================= */
-
 function loseRunner() {
 
     stopRunner();
-
-    showOverlay(
-        "vespaGameOver"
-    );
+    showOverlay("vespaGameOver");
 
 }
 
@@ -1265,10 +1457,7 @@ $("retryVespa")
 function winRunner() {
 
     stopRunner();
-
-    showOverlay(
-        "vespaComplete"
-    );
+    showOverlay("vespaComplete");
 
 }
 
@@ -1284,10 +1473,7 @@ $("finishVespa")
                     3
                 );
 
-            showScreen(
-                "mapScreen"
-            );
-
+            showScreen("mapScreen");
             updateMap();
 
         }
@@ -1300,34 +1486,17 @@ $("finishVespa")
 
 let draculaAnswered = false;
 
-
-/*
-   Cambia semplicemente questa lettera
-   se vuoi cambiare la risposta corretta:
-
-   a = castello
-   b = ultimo incontro
-   c = alba
-*/
-
 const correctDraculaAnswer = "b";
 
 
 function openDracula() {
 
-    showScreen(
-        "draculaScreen"
-    );
+    showScreen("draculaScreen");
 
     resetDracula();
 
-    showOverlay(
-        "draculaIntro"
-    );
-
-    hideOverlay(
-        "draculaComplete"
-    );
+    showOverlay("draculaIntro");
+    hideOverlay("draculaComplete");
 
 }
 
@@ -1337,9 +1506,7 @@ $("startDracula")
         "click",
         () => {
 
-            hideOverlay(
-                "draculaIntro"
-            );
+            hideOverlay("draculaIntro");
 
         }
     );
@@ -1362,9 +1529,7 @@ function resetDracula() {
         .add("hidden");
 
     document
-        .querySelectorAll(
-            ".film-card"
-        )
+        .querySelectorAll(".film-card")
         .forEach(card => {
 
             card.classList.remove(
@@ -1380,18 +1545,14 @@ function resetDracula() {
 
 
 document
-    .querySelectorAll(
-        ".film-card"
-    )
+    .querySelectorAll(".film-card")
     .forEach(card => {
 
         card.addEventListener(
             "click",
             () => {
 
-                if (
-                    draculaAnswered
-                ) {
+                if (draculaAnswered) {
                     return;
                 }
 
@@ -1411,8 +1572,7 @@ document
 
                 if (correct) {
 
-                    card.classList
-                        .add("correct");
+                    card.classList.add("correct");
 
                     $("quizResult")
                         .textContent =
@@ -1428,8 +1588,7 @@ document
 
                 } else {
 
-                    card.classList
-                        .add("wrong");
+                    card.classList.add("wrong");
 
                     $("quizResult")
                         .textContent =
@@ -1447,13 +1606,10 @@ document
 
 
                 document
-                    .querySelectorAll(
-                        ".film-card"
-                    )
+                    .querySelectorAll(".film-card")
                     .forEach(item => {
 
-                        item.disabled =
-                            true;
+                        item.disabled = true;
 
                     });
 
@@ -1475,9 +1631,7 @@ $("quizContinue")
         "click",
         () => {
 
-            showOverlay(
-                "draculaComplete"
-            );
+            showOverlay("draculaComplete");
 
         }
     );
@@ -1494,10 +1648,7 @@ $("finishDracula")
                     4
                 );
 
-            showScreen(
-                "mapScreen"
-            );
-
+            showScreen("mapScreen");
             updateMap();
 
         }
@@ -1511,12 +1662,9 @@ $("finishDracula")
 let placedRoomObjects =
     new Set();
 
+let selectedRoomObject = null;
 let roomDrag = null;
 
-
-/* =========================================================
-   APERTURA LEVEL 04
-   ========================================================= */
 
 function openRoom() {
 
@@ -1525,10 +1673,7 @@ function openRoom() {
     resetRoom();
 
     showOverlay("roomIntro");
-
-    hideOverlay(
-        "roomComplete"
-    );
+    hideOverlay("roomComplete");
 
 }
 
@@ -1538,52 +1683,46 @@ $("startRoom")
         "click",
         () => {
 
-            hideOverlay(
-                "roomIntro"
-            );
+            hideOverlay("roomIntro");
 
         }
     );
 
-
-/* =========================================================
-   RESET ROOM
-   ========================================================= */
 
 function resetRoom() {
 
     placedRoomObjects.clear();
 
     roomDrag = null;
+    selectedRoomObject = null;
 
-    $("roomCounter")
-        .textContent =
+    $("roomCounter").textContent =
         "0 / 7";
 
-    $("roomMessage")
-        .textContent =
-        "RICOSTRUISCI LA STANZA";
+    $("roomMessage").textContent =
+        "RICOSTRUISCI LA CASETTA";
 
     $("roomBoard")
         .classList
-        .remove("lights-on");
+        .remove(
+            "lights-on",
+            "family-home"
+        );
 
+    if ($("roomFamily")) {
+        $("roomFamily")
+            .classList
+            .remove("visible");
+    }
 
     document
-        .querySelectorAll(
-            ".placed-room-object"
-        )
+        .querySelectorAll(".placed-room-object")
         .forEach(element => {
-
             element.remove();
-
         });
 
-
     document
-        .querySelectorAll(
-            ".room-target"
-        )
+        .querySelectorAll(".room-target")
         .forEach(target => {
 
             target.classList.remove(
@@ -1595,15 +1734,13 @@ function resetRoom() {
 
         });
 
-
     document
-        .querySelectorAll(
-            ".room-object"
-        )
+        .querySelectorAll(".room-object")
         .forEach(object => {
 
             object.classList.remove(
-                "placed"
+                "placed",
+                "tap-selected"
             );
 
         });
@@ -1612,22 +1749,169 @@ function resetRoom() {
 
 
 /* =========================================================
-   START ROOM DRAG
+   ROOM — POINTER DOWN
    ========================================================= */
 
 document
-    .querySelectorAll(
-        ".room-object"
-    )
+    .querySelectorAll(".room-object")
     .forEach(object => {
 
         object.addEventListener(
             "pointerdown",
-            startRoomDrag
+            event => {
+
+                const source =
+                    event.currentTarget;
+
+                if (
+                    source.classList
+                        .contains("placed")
+                ) {
+                    return;
+                }
+
+
+                /*
+                   MOBILE:
+                   non parte il drag.
+                   Il primo tap seleziona.
+                */
+
+                if (isTouchLayout()) {
+
+                    event.preventDefault();
+
+                    selectRoomObject(source);
+
+                    return;
+                }
+
+
+                startRoomDrag(event);
+
+            }
         );
 
     });
 
+
+/* =========================================================
+   ROOM — TAP SUI TARGET
+   ========================================================= */
+
+document
+    .querySelectorAll(".room-target")
+    .forEach(target => {
+
+        target.addEventListener(
+            "pointerdown",
+            event => {
+
+                if (
+                    !isTouchLayout() ||
+                    !selectedRoomObject
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const expected =
+                    target.dataset.target;
+
+                if (
+                    expected !==
+                    selectedRoomObject
+                ) {
+
+                    roomWrongPosition();
+                    return;
+
+                }
+
+                const source =
+                    document.querySelector(
+                        '[data-room-object="' +
+                        selectedRoomObject +
+                        '"]'
+                    );
+
+                if (!source) {
+                    return;
+                }
+
+                placeRoomObject(
+                    selectedRoomObject,
+                    source,
+                    target
+                );
+
+            }
+        );
+
+    });
+
+
+function selectRoomObject(source) {
+
+    if (
+        source.classList
+            .contains("placed")
+    ) {
+        return;
+    }
+
+    selectedRoomObject =
+        source.dataset.roomObject;
+
+    document
+        .querySelectorAll(".room-object")
+        .forEach(object => {
+
+            object.classList.remove(
+                "tap-selected"
+            );
+
+        });
+
+    source.classList.add(
+        "tap-selected"
+    );
+
+    document
+        .querySelectorAll(".room-target")
+        .forEach(target => {
+
+            target.classList.remove(
+                "target-ready"
+            );
+
+        });
+
+    const target =
+        document.querySelector(
+            '[data-target="' +
+            selectedRoomObject +
+            '"]'
+        );
+
+    if (target) {
+
+        target.classList.add(
+            "target-ready"
+        );
+
+    }
+
+    $("roomMessage").textContent =
+        "ORA TOCCA IL SUO POSTO";
+
+}
+
+
+/* =========================================================
+   DESKTOP DRAG
+   ========================================================= */
 
 function startRoomDrag(event) {
 
@@ -1644,29 +1928,21 @@ function startRoomDrag(event) {
     event.preventDefault();
 
     const type =
-        source.dataset
-            .roomObject;
+        source.dataset.roomObject;
 
     const graphic =
         source.firstElementChild
             .cloneNode(true);
 
     const ghost =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     ghost.className =
         "room-drag-ghost";
 
-    ghost.appendChild(
-        graphic
-    );
+    ghost.appendChild(graphic);
 
-    document.body
-        .appendChild(
-            ghost
-        );
+    document.body.appendChild(ghost);
 
     roomDrag = {
         type,
@@ -1697,10 +1973,6 @@ function startRoomDrag(event) {
 }
 
 
-/* =========================================================
-   MOVIMENTO ROOM DRAG
-   ========================================================= */
-
 function moveRoomGhost(x, y) {
 
     if (!roomDrag) return;
@@ -1714,15 +1986,10 @@ function moveRoomGhost(x, y) {
 }
 
 
-function updateRoomTargetHover(
-    x,
-    y
-) {
+function updateRoomTargetHover(x, y) {
 
     document
-        .querySelectorAll(
-            ".room-target"
-        )
+        .querySelectorAll(".room-target")
         .forEach(target => {
 
             target.classList.remove(
@@ -1743,24 +2010,15 @@ function updateRoomTargetHover(
     if (!target) return;
 
     const rect =
-        target
-            .getBoundingClientRect();
+        target.getBoundingClientRect();
 
     const tolerance = 45;
 
     const inside =
-        x >=
-            rect.left -
-            tolerance &&
-        x <=
-            rect.right +
-            tolerance &&
-        y >=
-            rect.top -
-            tolerance &&
-        y <=
-            rect.bottom +
-            tolerance;
+        x >= rect.left - tolerance &&
+        x <= rect.right + tolerance &&
+        y >= rect.top - tolerance &&
+        y <= rect.bottom + tolerance;
 
     if (inside) {
 
@@ -1772,10 +2030,6 @@ function updateRoomTargetHover(
 
 }
 
-
-/* =========================================================
-   GLOBAL POINTERMOVE ROOM
-   ========================================================= */
 
 document.addEventListener(
     "pointermove",
@@ -1802,10 +2056,6 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   DROP ROOM
-   ========================================================= */
-
 document.addEventListener(
     "pointerup",
     event => {
@@ -1830,9 +2080,7 @@ document.addEventListener(
             );
 
         document
-            .querySelectorAll(
-                ".room-target"
-            )
+            .querySelectorAll(".room-target")
             .forEach(element => {
 
                 element.classList.remove(
@@ -1845,24 +2093,15 @@ document.addEventListener(
         if (!target) return;
 
         const rect =
-            target
-                .getBoundingClientRect();
+            target.getBoundingClientRect();
 
         const tolerance = 55;
 
         const inside =
-            event.clientX >=
-                rect.left -
-                tolerance &&
-            event.clientX <=
-                rect.right +
-                tolerance &&
-            event.clientY >=
-                rect.top -
-                tolerance &&
-            event.clientY <=
-                rect.bottom +
-                tolerance;
+            event.clientX >= rect.left - tolerance &&
+            event.clientX <= rect.right + tolerance &&
+            event.clientY >= rect.top - tolerance &&
+            event.clientY <= rect.bottom + tolerance;
 
         if (inside) {
 
@@ -1882,26 +2121,21 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   ROOM WRONG
-   ========================================================= */
-
 function roomWrongPosition() {
 
-    $("roomMessage")
-        .textContent =
+    $("roomMessage").textContent =
         "NON PROPRIO LÌ...";
 
     setTimeout(() => {
 
         if (
-            placedRoomObjects
-                .size < 7
+            placedRoomObjects.size < 7
         ) {
 
-            $("roomMessage")
-                .textContent =
-                "RIPROVA!";
+            $("roomMessage").textContent =
+                selectedRoomObject
+                    ? "PROVA UN ALTRO POSTO!"
+                    : "RIPROVA!";
 
         }
 
@@ -1910,10 +2144,6 @@ function roomWrongPosition() {
 }
 
 
-/* =========================================================
-   POSIZIONAMENTO ROOM
-   ========================================================= */
-
 function placeRoomObject(
     type,
     source,
@@ -1921,54 +2151,36 @@ function placeRoomObject(
 ) {
 
     if (
-        placedRoomObjects
-            .has(type)
+        placedRoomObjects.has(type)
     ) {
         return;
     }
 
-    placedRoomObjects
-        .add(type);
+    placedRoomObjects.add(type);
 
-    source.classList
-        .add("placed");
+    source.classList.add("placed");
 
-    target.classList
-        .add("correct");
-
+    target.classList.add("correct");
 
     const placed =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     placed.className =
         "placed-room-object";
 
-
     const graphic =
-        source
-            .firstElementChild
+        source.firstElementChild
             .cloneNode(true);
 
-    placed.appendChild(
-        graphic
-    );
+    placed.appendChild(graphic);
+    target.appendChild(placed);
 
-    target.appendChild(
-        placed
-    );
-
-
-    $("roomCounter")
-        .textContent =
+    $("roomCounter").textContent =
         placedRoomObjects.size +
         " / 7";
 
-    $("roomMessage")
-        .textContent =
+    $("roomMessage").textContent =
         "PERFETTO!";
-
 
     target.classList.add(
         "room-success"
@@ -1982,10 +2194,30 @@ function placeRoomObject(
 
     }, 350);
 
+    selectedRoomObject = null;
+
+    document
+        .querySelectorAll(".room-object")
+        .forEach(object => {
+
+            object.classList.remove(
+                "tap-selected"
+            );
+
+        });
+
+    document
+        .querySelectorAll(".room-target")
+        .forEach(item => {
+
+            item.classList.remove(
+                "target-ready"
+            );
+
+        });
 
     if (
-        placedRoomObjects
-            .size === 7
+        placedRoomObjects.size === 7
     ) {
 
         completeRoom();
@@ -1995,20 +2227,14 @@ function placeRoomObject(
 }
 
 
-/* =========================================================
-   COMPLETE ROOM
-   ========================================================= */
-
 function completeRoom() {
 
-    $("roomMessage")
-        .textContent =
+    $("roomMessage").textContent =
         "ASPETTA...";
 
     setTimeout(() => {
 
-        $("roomMessage")
-            .textContent =
+        $("roomMessage").textContent =
             "ACCENDIAMO LA LUCE...";
 
     }, 500);
@@ -2020,20 +2246,45 @@ function completeRoom() {
             .classList
             .add("lights-on");
 
-        $("roomMessage")
-            .textContent =
-            "♥ CASA ♥";
+        $("roomMessage").textContent =
+            "♥ LA PRIMA CASETTA ♥";
 
     }, 1200);
 
 
     setTimeout(() => {
 
-        showOverlay(
-            "roomComplete"
-        );
+        $("roomBoard")
+            .classList
+            .add("family-home");
 
-    }, 2500);
+        if ($("roomFamily")) {
+
+            $("roomFamily")
+                .classList
+                .add("visible");
+
+        }
+
+        $("roomMessage").textContent =
+            "E POI, ANNO DOPO ANNO...";
+
+    }, 2200);
+
+
+    setTimeout(() => {
+
+        $("roomMessage").textContent =
+            "♥ CASA ♥";
+
+    }, 4300);
+
+
+    setTimeout(() => {
+
+        showOverlay("roomComplete");
+
+    }, 5200);
 
 }
 
@@ -2049,10 +2300,7 @@ $("finishRoom")
                     5
                 );
 
-            showScreen(
-                "mapScreen"
-            );
-
+            showScreen("mapScreen");
             updateMap();
 
         }
@@ -2062,15 +2310,6 @@ $("finishRoom")
 /* =========================================================
    LEVEL 05 — FAMILY FOOD
    ========================================================= */
-
-/*
-   Per modificare i piatti devi cambiare
-   SOLO questo array.
-
-   target:
-   "family" = Stefania, Antonio, Casper e Ludovica
-   "francesca" = Francesca
-*/
 
 const foods = [
 
@@ -2126,31 +2365,33 @@ const foods = [
 
 
 let currentFood = 0;
-
 let foodDrag = null;
-
 let foodGameActive = false;
+let foodTapSelected = false;
 
-
-/* =========================================================
-   APERTURA FAMILY
-   ========================================================= */
 
 function openFamily() {
 
-    showScreen(
-        "familyScreen"
-    );
+    showScreen("familyScreen");
+
+    /*
+       Prima chiudiamo esplicitamente
+       la schermata di completamento.
+    */
+
+    hideOverlay("familyComplete");
+
+    /*
+       Reset del gioco.
+    */
 
     resetFamily();
 
-    showOverlay(
-        "familyIntro"
-    );
+    /*
+       Solo dopo mostriamo l'introduzione.
+    */
 
-    hideOverlay(
-        "familyComplete"
-    );
+    showOverlay("familyIntro");
 
 }
 
@@ -2160,9 +2401,7 @@ $("startFamily")
         "click",
         () => {
 
-            hideOverlay(
-                "familyIntro"
-            );
+            hideOverlay("familyIntro");
 
             foodGameActive = true;
 
@@ -2170,22 +2409,50 @@ $("startFamily")
     );
 
 
-/* =========================================================
-   RESET FAMILY
-   ========================================================= */
-
 function resetFamily() {
 
     currentFood = 0;
 
     foodGameActive = false;
 
+    foodTapSelected = false;
+
+
+    /* ---------------------------------------------------------
+       ELIMINA EVENTUALE GHOST
+       --------------------------------------------------------- */
+
+    if (foodDrag && foodDrag.ghost) {
+
+        foodDrag.ghost.remove();
+
+    }
+
     foodDrag = null;
 
+
+    /* ---------------------------------------------------------
+       ASSICURATI CHE "CENA SERVITA" SIA CHIUSA
+       --------------------------------------------------------- */
+
+    hideOverlay("familyComplete");
+
+
+    /* ---------------------------------------------------------
+       RESET CARTA
+       --------------------------------------------------------- */
+
+    $("foodCard")
+        .classList
+        .remove("tap-selected");
+
+
+    /* ---------------------------------------------------------
+       RESET TARGET
+       --------------------------------------------------------- */
+
     document
-        .querySelectorAll(
-            ".food-target"
-        )
+        .querySelectorAll(".food-target")
         .forEach(target => {
 
             target.classList.remove(
@@ -2196,14 +2463,15 @@ function resetFamily() {
 
         });
 
+
+    /* ---------------------------------------------------------
+       CARICA PRIMO PIATTO
+       --------------------------------------------------------- */
+
     loadFood();
 
 }
 
-
-/* =========================================================
-   MOSTRA PIATTO
-   ========================================================= */
 
 function loadFood() {
 
@@ -2219,36 +2487,37 @@ function loadFood() {
     const food =
         foods[currentFood];
 
-    $("foodIcon")
-        .textContent =
+    $("foodIcon").textContent =
         food.icon;
 
-    $("foodName")
-        .textContent =
+    $("foodName").textContent =
         food.name;
 
-    $("foodProgress")
-        .textContent =
+    $("foodProgress").textContent =
         (currentFood + 1) +
         " / " +
         foods.length;
 
-    $("foodFeedback")
-        .textContent =
-        "TRASCINA IL PIATTO";
+    $("foodFeedback").textContent =
+        isTouchLayout()
+            ? "TOCCA IL PIATTO, POI SCEGLI DOVE SERVIRLO"
+            : "TRASCINA IL PIATTO";
 
     $("foodCard")
         .classList
         .remove(
             "food-correct",
-            "food-wrong"
+            "food-wrong",
+            "tap-selected"
         );
+
+    foodTapSelected = false;
 
 }
 
 
 /* =========================================================
-   FOOD DRAG
+   FOOD — MOBILE TAP / DESKTOP DRAG
    ========================================================= */
 
 $("foodCard")
@@ -2258,30 +2527,52 @@ $("foodCard")
 
             if (
                 !foodGameActive ||
-                currentFood >=
-                    foods.length
+                currentFood >= foods.length
             ) {
                 return;
             }
 
+
+            /*
+               MOBILE:
+               un tap seleziona il piatto.
+            */
+
+            if (isTouchLayout()) {
+
+                event.preventDefault();
+
+                foodTapSelected = true;
+
+                $("foodCard")
+                    .classList
+                    .add("tap-selected");
+
+                $("foodFeedback")
+                    .textContent =
+                    "ORA TOCCA CHI DEVE MANGIARLO";
+
+                return;
+            }
+
+
+            /*
+               DESKTOP:
+               drag classico.
+            */
+
             event.preventDefault();
 
             const ghost =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
 
             ghost.className =
                 "food-drag-ghost";
 
             ghost.textContent =
-                foods[currentFood]
-                    .icon;
+                foods[currentFood].icon;
 
-            document.body
-                .appendChild(
-                    ghost
-                );
+            document.body.appendChild(ghost);
 
             foodDrag = {
                 ghost
@@ -2294,6 +2585,41 @@ $("foodCard")
 
         }
     );
+
+
+document
+    .querySelectorAll(".food-target")
+    .forEach(target => {
+
+        target.addEventListener(
+            "pointerdown",
+            event => {
+
+                if (
+                    !isTouchLayout() ||
+                    !foodTapSelected ||
+                    !foodGameActive
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                foodTapSelected = false;
+
+                $("foodCard")
+                    .classList
+                    .remove("tap-selected");
+
+                checkFoodAnswer(
+                    target.dataset.foodTarget,
+                    target
+                );
+
+            }
+        );
+
+    });
 
 
 function moveFoodGhost(x, y) {
@@ -2309,10 +2635,7 @@ function moveFoodGhost(x, y) {
 }
 
 
-function getFoodTargetAt(
-    x,
-    y
-) {
+function getFoodTargetAt(x, y) {
 
     const targets =
         document.querySelectorAll(
@@ -2324,8 +2647,7 @@ function getFoodTargetAt(
     targets.forEach(target => {
 
         const rect =
-            target
-                .getBoundingClientRect();
+            target.getBoundingClientRect();
 
         if (
             x >= rect.left &&
@@ -2361,13 +2683,10 @@ document.addEventListener(
         );
 
         document
-            .querySelectorAll(
-                ".food-target"
-            )
+            .querySelectorAll(".food-target")
             .forEach(target => {
 
-                target.classList
-                    .remove("hover");
+                target.classList.remove("hover");
 
             });
 
@@ -2379,8 +2698,7 @@ document.addEventListener(
 
         if (target) {
 
-            target.classList
-                .add("hover");
+            target.classList.add("hover");
 
         }
 
@@ -2401,13 +2719,10 @@ document.addEventListener(
         foodDrag = null;
 
         document
-            .querySelectorAll(
-                ".food-target"
-            )
+            .querySelectorAll(".food-target")
             .forEach(target => {
 
-                target.classList
-                    .remove("hover");
+                target.classList.remove("hover");
 
             });
 
@@ -2419,26 +2734,20 @@ document.addEventListener(
 
         if (!target) {
 
-            $("foodFeedback")
-                .textContent =
+            $("foodFeedback").textContent =
                 "IL PIATTO È ANCORA IN TAVOLA!";
 
             return;
         }
 
         checkFoodAnswer(
-            target.dataset
-                .foodTarget,
+            target.dataset.foodTarget,
             target
         );
 
     }
 );
 
-
-/* =========================================================
-   CONTROLLO PIATTO
-   ========================================================= */
 
 function checkFoodAnswer(
     selectedTarget,
@@ -2453,23 +2762,18 @@ function checkFoodAnswer(
         food.target
     ) {
 
-        $("foodFeedback")
-            .textContent =
+        $("foodFeedback").textContent =
             "ESATTO!";
 
         targetElement
             .classList
-            .add(
-                "correct-flash"
-            );
+            .add("correct-flash");
 
         setTimeout(() => {
 
             targetElement
                 .classList
-                .remove(
-                    "correct-flash"
-                );
+                .remove("correct-flash");
 
             currentFood++;
 
@@ -2479,26 +2783,21 @@ function checkFoodAnswer(
 
     } else {
 
-        $("foodFeedback")
-            .textContent =
+        $("foodFeedback").textContent =
             food.target ===
                 "francesca"
                 ? "NO NO... QUESTO TOCCA A FRANCESCA."
-                : "TROPPO TRISTE PER FRANCESCA!";
+                : "QUESTO VA AL TAVOLO DELLA FAMIGLIA!";
 
         targetElement
             .classList
-            .add(
-                "wrong-flash"
-            );
+            .add("wrong-flash");
 
         setTimeout(() => {
 
             targetElement
                 .classList
-                .remove(
-                    "wrong-flash"
-                );
+                .remove("wrong-flash");
 
         }, 450);
 
@@ -2507,29 +2806,21 @@ function checkFoodAnswer(
 }
 
 
-/* =========================================================
-   COMPLETE FAMILY
-   ========================================================= */
-
 function completeFamily() {
 
     foodGameActive = false;
 
-    $("foodProgress")
-        .textContent =
+    $("foodProgress").textContent =
         foods.length +
         " / " +
         foods.length;
 
-    $("foodFeedback")
-        .textContent =
+    $("foodFeedback").textContent =
         "CENA SERVITA!";
 
     setTimeout(() => {
 
-        showOverlay(
-            "familyComplete"
-        );
+        showOverlay("familyComplete");
 
     }, 700);
 
@@ -2543,9 +2834,7 @@ $("finishFamily")
 
             unlockedLevel = 6;
 
-            showScreen(
-                "finalScreen"
-            );
+            showScreen("finalScreen");
 
         }
     );
@@ -2572,9 +2861,194 @@ document.addEventListener(
     }
 );
 
-
 /* =========================================================
-   INIZIALIZZAZIONE
+   INIZIALIZZAZIONE GENERALE
    ========================================================= */
 
-updateMap();
+function initializeGame() {
+
+    /* ---------------------------------------------------------
+       STATO GENERALE
+       --------------------------------------------------------- */
+
+    unlockedLevel = 1;
+
+    runnerActive = false;
+    aidActive = false;
+    foodGameActive = false;
+
+    currentFood = 0;
+
+    selectedTool = null;
+    selectedRoomObject = null;
+
+    foodTapSelected = false;
+
+
+    /* ---------------------------------------------------------
+       FERMA EVENTUALI TIMER / DRAG
+       --------------------------------------------------------- */
+
+    stopRunner();
+    stopCleaning();
+
+    if (panicInterval) {
+        clearInterval(panicInterval);
+        panicInterval = null;
+    }
+
+    if (aidDrag && aidDrag.ghost) {
+        aidDrag.ghost.remove();
+    }
+
+    aidDrag = null;
+
+    if (roomDrag && roomDrag.ghost) {
+        roomDrag.ghost.remove();
+    }
+
+    roomDrag = null;
+
+    if (foodDrag && foodDrag.ghost) {
+        foodDrag.ghost.remove();
+    }
+
+    foodDrag = null;
+
+
+    /* ---------------------------------------------------------
+       NASCONDI TUTTE LE SCHERMATE
+       --------------------------------------------------------- */
+
+    screens.forEach(screenId => {
+
+        const screen = $(screenId);
+
+        if (screen) {
+            screen.classList.remove("active");
+        }
+
+    });
+
+
+    /* ---------------------------------------------------------
+       CHIUDI TUTTI GLI OVERLAY DI COMPLETAMENTO
+       --------------------------------------------------------- */
+
+    [
+        "aidComplete",
+        "vespaGameOver",
+        "vespaComplete",
+        "draculaComplete",
+        "roomComplete",
+        "familyComplete"
+    ].forEach(id => {
+
+        const overlay = $(id);
+
+        if (overlay) {
+            overlay.classList.add("hidden");
+        }
+
+    });
+
+
+    /* ---------------------------------------------------------
+       RIPRISTINA GLI OVERLAY INTRO
+       --------------------------------------------------------- */
+
+    [
+        "aidIntro",
+        "vespaIntro",
+        "draculaIntro",
+        "roomIntro",
+        "familyIntro"
+    ].forEach(id => {
+
+        const overlay = $(id);
+
+        if (overlay) {
+            overlay.classList.remove("hidden");
+        }
+
+    });
+
+
+    /* ---------------------------------------------------------
+       RESET LIVELLO FAMILY
+       IMPORTANTE: NON CHIAMARE loadFood() QUI
+       --------------------------------------------------------- */
+
+    currentFood = 0;
+    foodGameActive = false;
+    foodTapSelected = false;
+
+    if ($("foodProgress")) {
+        $("foodProgress").textContent =
+            "1 / " + foods.length;
+    }
+
+    if ($("foodFeedback")) {
+        $("foodFeedback").textContent =
+            "TRASCINA IL PIATTO";
+    }
+
+
+    /* ---------------------------------------------------------
+       RIPRISTINA BIGLIETTO
+       --------------------------------------------------------- */
+
+    const cardScreen = $("cardScreen");
+
+    if (cardScreen) {
+        cardScreen.classList.add("active");
+    }
+
+
+    /* ---------------------------------------------------------
+       RIPRISTINA COPERTINA
+       --------------------------------------------------------- */
+
+    const paperCard = $("paperCard");
+
+    if (paperCard) {
+
+        paperCard.classList.remove("open");
+
+        setTimeout(() => {
+
+            paperCard.classList.add("open");
+
+        }, 1200);
+
+    }
+
+
+    /* ---------------------------------------------------------
+       MAPPA
+       --------------------------------------------------------- */
+
+    updateMap();
+
+
+    /* ---------------------------------------------------------
+       TORNA IN ALTO
+       --------------------------------------------------------- */
+
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant"
+    });
+
+}
+
+
+/* =========================================================
+   AVVIO
+   ========================================================= */
+
+window.addEventListener(
+    "load",
+    initializeGame
+);

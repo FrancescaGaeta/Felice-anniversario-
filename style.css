@@ -3900,3 +3900,975 @@ input {
     }
 
 }
+
+
+/* =========================================================
+   PATCH DEFINITIVA
+   FIRST AID + OVERLAY + ROOM + MOBILE
+   ========================================================= */
+
+
+/* =========================================================
+   OVERLAY — SEMPRE CENTRATO NELLO SCHERMO
+   ========================================================= */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 5000;
+
+    width: 100%;
+    height: 100dvh;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    overflow-y: auto;
+
+    background: rgba(9, 32, 45, 0.94);
+}
+
+.overlay-card {
+    width: min(500px, 100%);
+
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+
+    padding: 40px;
+
+    background: #173e52;
+
+    border: 4px solid #83c3db;
+
+    box-shadow: 8px 8px #092938;
+
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   LEVEL 01 — FIRST AID
+   ========================================================= */
+
+.wound-target {
+    position: absolute;
+
+    right: -15px;
+    top: 65px;
+
+    z-index: 20;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 3px dashed #b94d4d;
+    border-radius: 50%;
+
+    background: #f2d15b;
+
+    color: #173e52;
+
+    cursor: pointer;
+
+    touch-action: none;
+    user-select: none;
+
+    transition:
+        transform 0.15s,
+        background 0.15s,
+        border 0.15s;
+}
+
+.wound-target:hover {
+    transform: scale(1.1);
+}
+
+
+/* taglio */
+
+.wound-cut {
+    position: absolute;
+
+    width: 22px;
+    height: 4px;
+
+    background: #9e3131;
+
+    border-radius: 5px;
+
+    transform: rotate(-25deg);
+
+    opacity: 0;
+}
+
+.wound-target.bleeding .wound-cut,
+.wound-target.pressing .wound-cut {
+    opacity: 1;
+}
+
+
+/* simbolo ! / ✓ */
+
+.wound-symbol {
+    position: relative;
+
+    z-index: 5;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   SANGUE
+   ========================================================= */
+
+.blood-drop {
+    position: absolute;
+
+    width: 7px;
+    height: 10px;
+
+    background: #b83f3f;
+
+    border-radius: 60% 60% 70% 70%;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.blood-drop-1 {
+    left: 10px;
+    bottom: -5px;
+}
+
+.blood-drop-2 {
+    right: 8px;
+    bottom: -10px;
+}
+
+.wound-target.bleeding .blood-drop {
+    opacity: 1;
+
+    animation:
+        bloodDrop 0.8s
+        steps(4)
+        infinite;
+}
+
+.wound-target.bleeding .blood-drop-2 {
+    animation-delay: 0.3s;
+}
+
+@keyframes bloodDrop {
+
+    0% {
+        transform: translateY(-3px);
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+
+}
+
+
+/* =========================================================
+   PRESSIONE SULLA FERITA
+   ========================================================= */
+
+.wound-target.pressing {
+    transform: scale(0.9);
+
+    background: #efb26f;
+
+    border-style: solid;
+
+    animation:
+        woundPressure 0.4s
+        steps(2)
+        infinite;
+}
+
+@keyframes woundPressure {
+
+    50% {
+        transform: scale(0.82);
+    }
+
+}
+
+.wound-target.pressure-complete {
+    background: #8fc79a;
+
+    border-color: #5d9369;
+
+    border-style: solid;
+}
+
+
+/* =========================================================
+   FERITA GUARITA
+   ========================================================= */
+
+.wound-target.healed {
+    background: #e4b68d;
+
+    border: 3px solid #a77c5a;
+
+    border-radius: 4px;
+
+    transform: rotate(-8deg);
+}
+
+.wound-target.healed .wound-cut,
+.wound-target.healed .blood-drop {
+    display: none;
+}
+
+
+/* =========================================================
+   FIRST AID — FASE PRESSIONE
+   ========================================================= */
+
+.aid-pressure-phase {
+    margin-top: 5px;
+}
+
+.pressure-warning {
+    margin: 22px 0 15px;
+
+    padding: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    border: 3px solid #d66b64;
+
+    background: #713c3b;
+
+    color: #fff3d0;
+
+    font-size: 0.65rem;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+.pressure-warning span {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    background: #f2d15b;
+
+    color: #713c3b;
+
+    font-size: 1rem;
+
+    font-weight: bold;
+}
+
+.pressure-meter {
+    height: 20px;
+
+    overflow: hidden;
+
+    border: 3px solid #80bdd4;
+
+    background: #092938;
+}
+
+#cleanProgress {
+    width: 0;
+    height: 100%;
+
+    background: #f2d15b;
+
+    transition: width 0.08s linear;
+}
+
+.pressure-status {
+    margin-top: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    color: #8fc4d8;
+
+    font-size: 0.65rem;
+
+    letter-spacing: 2px;
+}
+
+.pressure-status strong {
+    color: #f2d15b;
+
+    font-size: 0.8rem;
+}
+
+.pressure-tip {
+    margin-top: 20px;
+
+    color: #8bbbd0 !important;
+
+    font-size: 0.7rem !important;
+}
+
+
+/* =========================================================
+   CEROTTO
+   ========================================================= */
+
+.bandage-grid {
+    grid-template-columns: 1fr;
+}
+
+#aidBandagePhase .aid-tool {
+    width: 100%;
+}
+
+
+/* =========================================================
+   LEVEL 04 — CASETTA
+   ========================================================= */
+
+.room-board {
+    position: relative;
+
+    width: 100%;
+    height: 520px;
+
+    overflow: hidden;
+
+    /*
+       Cornice principale color mattone.
+    */
+
+    border: 18px solid #8d3f34;
+
+    box-shadow: 8px 8px #092938;
+
+    /*
+       Interno chiaro / bianco.
+    */
+
+    background: #fffdf6;
+
+    transition:
+        background 1s ease,
+        box-shadow 1s ease,
+        filter 1s ease;
+}
+
+
+/* =========================================================
+   MATTONI DELLA CORNICE
+   ========================================================= */
+
+.room-board::before {
+    content: "";
+
+    position: absolute;
+
+    z-index: 40;
+
+    inset: -18px;
+
+    pointer-events: none;
+
+    /*
+       Fughe orizzontali + verticali.
+       Il risultato richiama i classici mattoni rettangolari.
+    */
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 27px,
+            #552820 27px 30px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 54px,
+            #552820 54px 57px
+        );
+
+    opacity: 0.82;
+}
+
+
+/* =========================================================
+   INTERNO BIANCO
+   ========================================================= */
+
+.room-wall {
+    position: absolute;
+
+    inset: 0 0 115px;
+
+    background:
+        linear-gradient(
+            #fffdf7,
+            #f8f3e9
+        );
+}
+
+.room-floor {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 115px;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #a57955 0 60px,
+            #835e43 60px 64px
+        );
+}
+
+
+/* =========================================================
+   LUCE FINALE DELLA CASA
+   ========================================================= */
+
+.room-board.lights-on {
+    background: #fff7d9;
+
+    box-shadow:
+        0 0 80px rgba(255, 221, 116, 0.42),
+        8px 8px #092938;
+}
+
+.room-board.lights-on .room-wall {
+    background:
+        linear-gradient(
+            #fff9df,
+            #f8edc9
+        );
+}
+
+
+/* =========================================================
+   ROOM — SELEZIONE MOBILE
+   ========================================================= */
+
+.room-object.tap-selected,
+.room-object.selected {
+    border-color: #f2d15b;
+
+    background: #315e70;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(242, 209, 91, 0.16);
+}
+
+.room-target.target-ready {
+    border-color: rgba(242, 209, 91, 0.75);
+}
+
+
+/* =========================================================
+   FAMIGLIA CHE COMPARE NELLA CASETTA
+   ========================================================= */
+
+.room-family {
+    position: absolute;
+
+    z-index: 28;
+
+    left: 50%;
+    bottom: 15px;
+
+    width: min(380px, 90%);
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    gap: 8px;
+
+    transform: translateX(-50%);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
+}
+
+.room-family.visible {
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(-4px);
+}
+
+.room-family-person {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    opacity: 0;
+
+    transform: translateY(18px);
+
+    animation:
+        familyEnter
+        0.45s
+        steps(4)
+        forwards;
+}
+
+.room-family.visible
+.room-family-person:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.room-family.visible
+.room-family-person:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.room-family.visible
+.room-family-person:nth-child(3) {
+    animation-delay: 0.5s;
+}
+
+.room-family.visible
+.room-family-person:nth-child(4) {
+    animation-delay: 0.7s;
+}
+
+.room-family.visible
+.room-family-person:nth-child(5) {
+    animation-delay: 0.9s;
+}
+
+@keyframes familyEnter {
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+}
+
+.room-family-person > span:last-child {
+    margin-top: 5px;
+
+    padding: 2px 4px;
+
+    background: rgba(23, 62, 82, 0.88);
+
+    color: #f7e5a3;
+
+    font-size: 0.42rem;
+
+    letter-spacing: 0.5px;
+}
+
+
+/* =========================================================
+   PERSONAGGINI DELLA CASETTA
+   ========================================================= */
+
+.tiny-person {
+    position: relative;
+
+    width: 34px;
+    height: 58px;
+
+    display: block;
+}
+
+.tiny-person::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 7px;
+
+    width: 20px;
+    height: 20px;
+
+    background: #efc29d;
+
+    border: 3px solid #17313c;
+}
+
+.tiny-person::after {
+    content: "";
+
+    position: absolute;
+
+    left: 5px;
+    bottom: 0;
+
+    width: 24px;
+    height: 34px;
+
+    background: #79aabc;
+
+    border: 3px solid #17313c;
+}
+
+.room-family-person.stefania
+.tiny-person::after {
+    background: #8cae98;
+}
+
+.room-family-person.antonio
+.tiny-person::after {
+    background: #708d9d;
+}
+
+.room-family-person.gaspare
+.tiny-person::after {
+    background: #b5886f;
+}
+
+.room-family-person.francesca
+.tiny-person::after {
+    background: #79aabc;
+}
+
+.room-family-person.ludovica
+.tiny-person::after {
+    background: #9a8daf;
+}
+
+
+/* =========================================================
+   LEVEL 05 — MOBILE TAP FEEDBACK
+   ========================================================= */
+
+.food-card.tap-selected {
+    transform:
+        translateY(-5px)
+        scale(1.03);
+
+    border-color: #f2d15b;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(242, 209, 91, 0.18),
+        7px 7px #092938;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .room-game-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .room-inventory {
+        order: -1;
+    }
+
+    .inventory-grid {
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
+
+    .family-game {
+        grid-template-columns: 1fr;
+    }
+
+    .food-center {
+        order: -1;
+
+        margin-bottom: 20px;
+    }
+
+    .food-target {
+        min-height: 330px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 750px) {
+
+    /*
+       IMPORTANTISSIMO:
+       annulla il vecchio padding-top: 90px dell'overlay.
+    */
+
+    .overlay {
+        padding: 14px;
+
+        align-items: center;
+    }
+
+    .overlay-card {
+        padding: 24px 20px;
+
+        max-height:
+            calc(
+                100dvh - 28px
+            );
+    }
+
+
+    /* FIRST AID */
+
+    .aid-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .aid-tools {
+        padding: 20px;
+    }
+
+    .aid-scene {
+        height: 380px;
+    }
+
+
+    /* ROOM */
+
+    .room-game-layout {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 18px;
+    }
+
+    .room-inventory {
+        order: -1;
+
+        padding: 18px;
+    }
+
+    .inventory-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 9px;
+    }
+
+    .room-object {
+        min-height: 100px;
+
+        cursor: pointer;
+    }
+
+    .room-board {
+        height: 430px;
+
+        border-width: 12px;
+    }
+
+    .room-board::before {
+        inset: -12px;
+    }
+
+    .room-target {
+        min-width: 50px;
+        min-height: 50px;
+
+        cursor: pointer;
+    }
+
+    .room-tip::after {
+        content:
+            " Su telefono: tocca un oggetto e poi tocca il punto in cui vuoi inserirlo.";
+    }
+
+
+    /* FAMILY FOOD */
+
+    .family-game {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 18px;
+
+        margin-top: 20px;
+    }
+
+    .food-center {
+        order: -1;
+
+        margin: 0;
+    }
+
+    .food-card {
+        width: min(220px, 80vw);
+
+        min-height: 190px;
+
+        cursor: pointer;
+    }
+
+    .food-target {
+        min-height: 300px;
+
+        cursor: pointer;
+    }
+
+    .food-target:active {
+        border-color: #f2d15b;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 450px) {
+
+    .game-heading,
+    .map-heading {
+        margin:
+            35px auto
+            30px;
+    }
+
+    .game-heading h2,
+    .map-heading h2 {
+        font-size: 2.35rem;
+    }
+
+
+    /* FIRST AID */
+
+    .aid-scene {
+        height: 350px;
+    }
+
+    .aid-tools {
+        padding: 16px;
+    }
+
+    .tool-grid {
+        gap: 8px;
+    }
+
+    .aid-tool {
+        min-height: 85px;
+    }
+
+
+    /* ROOM */
+
+    .room-board {
+        height: 390px;
+    }
+
+    .room-inventory {
+        padding: 15px;
+    }
+
+    .room-object {
+        min-height: 90px;
+
+        padding: 7px;
+    }
+
+    .room-object > span {
+        font-size: 0.48rem;
+    }
+
+    .room-family {
+        width: 96%;
+
+        gap: 3px;
+    }
+
+    .tiny-person {
+        transform: scale(0.86);
+    }
+
+    .room-family-person > span:last-child {
+        font-size: 0.36rem;
+    }
+
+
+    /* FAMILY FOOD */
+
+    .food-card {
+        width: 185px;
+
+        min-height: 180px;
+
+        padding: 18px 12px;
+    }
+
+    .food-icon {
+        font-size: 3.6rem;
+    }
+
+    .food-target {
+        min-height: 280px;
+
+        padding:
+            20px
+            12px;
+    }
+
+    .family-characters {
+        gap: 12px;
+    }
+
+}

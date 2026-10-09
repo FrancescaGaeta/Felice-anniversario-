@@ -238,8 +238,17 @@
                             <div class="person-body"></div>
 
                             <div id="woundTarget"
-                                 class="wound-target">
-                                !
+                                class="wound-target">
+
+                                <span class="wound-cut"></span>
+
+                                <span class="blood-drop blood-drop-1"></span>
+                                <span class="blood-drop blood-drop-2"></span>
+
+                                <span id="woundSymbol" class="wound-symbol">
+                                    !
+                                </span>
+
                             </div>
 
                         </div>
@@ -255,69 +264,146 @@
                 </div>
 
             </div>
+                <aside class="aid-tools">
 
-            <aside class="aid-tools">
+    <!-- =====================================================
+         FASE 1 — KIT DI EMERGENZA
+         ===================================================== -->
 
-                <div class="eyebrow">
-                    KIT DI EMERGENZA
-                </div>
+    <div id="aidKitPhase">
 
-                <h3 id="aidTitle">
-                    Trova il disinfettante
-                </h3>
+        <div class="eyebrow">
+            KIT DI EMERGENZA
+        </div>
 
-                <p id="aidDescription">
-                    Trascinalo sulla mano di papà.
-                </p>
+        <h3 id="aidTitle">
+            Trova il disinfettante
+        </h3>
 
-                <div class="tool-grid">
+        <p id="aidDescription">
+            Trascinalo sulla mano di papà.
+        </p>
 
-                    <button class="aid-tool" data-tool="coffee">
-                        <span>☕</span>
-                        CAFFÈ
-                    </button>
+        <div class="tool-grid">
 
-                    <button class="aid-tool" data-tool="disinfectant">
-                        <span>✚</span>
-                        DISINFETTANTE
-                    </button>
+            <button class="aid-tool" data-tool="coffee">
+                <span>☕</span>
+                CAFFÈ
+            </button>
 
-                    <button class="aid-tool" data-tool="wine">
-                        <span>🍷</span>
-                        VINO
-                    </button>
+            <button class="aid-tool" data-tool="disinfectant">
+                <span>✚</span>
+                DISINFETTANTE
+            </button>
 
-                    <button class="aid-tool hidden"
-                            data-tool="bandage">
-                        <span>🩹</span>
-                        CEROTTO
-                    </button>
+            <button class="aid-tool" data-tool="wine">
+                <span>🍷</span>
+                VINO
+            </button>
 
-                </div>
+            <button
+                class="aid-tool hidden"
+                data-tool="bandage">
+                <span>🩹</span>
+                CEROTTO
+            </button>
 
-                <div id="aidClean" class="hidden">
+        </div>
 
-                    <p>
-                        Tieni premuto per disinfettare.
-                    </p>
+        <p id="aidHint" class="aid-hint">
+            Trascina un oggetto sulla ferita.
+            Puoi anche selezionarlo e poi
+            toccare la ferita.
+        </p>
 
-                    <button id="cleanButton" class="pixel-btn">
-                        TIENI PREMUTO
-                    </button>
+    </div>
 
-                    <div class="clean-meter">
-                        <div id="cleanProgress"></div>
-                    </div>
 
-                </div>
+    <!-- =====================================================
+         FASE 2 — PRESSIONE SULLA FERITA
+         ===================================================== -->
 
-                <p id="aidHint" class="aid-hint">
-                    Trascina un oggetto sulla ferita.
-                    Puoi anche selezionarlo e poi
-                    toccare la ferita.
-                </p>
+    <div id="aidPressurePhase" class="aid-pressure-phase hidden">
 
-            </aside>
+        <div class="eyebrow">
+            EMERGENZA!
+        </div>
+
+        <h3>
+            FERMA IL SANGUE!
+        </h3>
+
+        <p>
+            Tieni premuto direttamente sulla ferita
+            finché l'emorragia non si ferma.
+        </p>
+
+        <div class="pressure-warning">
+            <span>!</span>
+            NON MOLLARE LA PRESSIONE
+        </div>
+
+        <div class="pressure-meter">
+
+            <div id="cleanProgress"></div>
+
+        </div>
+
+        <div class="pressure-status">
+
+            <span>PRESSIONE</span>
+
+            <strong id="pressurePercent">
+                0%
+            </strong>
+
+        </div>
+
+        <p class="pressure-tip">
+            Tieni il dito sulla ferita.
+            Se molli troppo presto, ricomincia a sanguinare!
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         FASE 3 — CEROTTO
+         ===================================================== -->
+
+    <div id="aidBandagePhase" class="hidden">
+
+        <div class="eyebrow">
+            ULTIMO PASSAGGIO
+        </div>
+
+        <h3>
+            Metti il cerotto
+        </h3>
+
+        <p>
+            Crisi evitata. Ora trascina
+            il cerotto sulla mano di papà.
+        </p>
+
+        <div class="tool-grid bandage-grid">
+
+            <button
+                class="aid-tool"
+                data-tool="bandage">
+                <span>🩹</span>
+                CEROTTO
+            </button>
+
+        </div>
+
+        <p class="aid-hint">
+            Un ultimo gesto e papà è salvo.
+        </p>
+
+    </div>
+
+</aside>
 
         </div>
 
@@ -852,18 +938,19 @@
 
     <div class="game-heading">
 
-        <div class="eyebrow">
-            LEVEL 04 · UN POSTO SPECIALE
-        </div>
-
-        <h2>HOME SWEET HOME</h2>
-
-        <p>
-            Ci sono posti che restano nella memoria
-            anche dopo tantissimi anni.
-        </p>
-
+    <div class="eyebrow">
+        LEVEL 04 · DA UNA PICCOLA CASA...
     </div>
+
+    <h2>HOME SWEET HOME</h2>
+
+    <p>
+        Tutto è cominciato da una piccola casa
+        costruita da papà per mamma.
+        Molto prima che esistesse quella vera.
+    </p>
+
+</div>
 
 
     <div class="room-game-layout">
@@ -944,6 +1031,74 @@
                      ================================================= -->
 
                 <div id="roomLightGlow" class="room-light-glow"></div>
+
+                <!-- =================================================
+     FAMIGLIA — compare a stanza completata
+     ================================================= -->
+
+<div id="roomFamily" class="room-family">
+
+    <div class="room-family-person room-family-stefania">
+
+        <div class="tiny-person">
+            <div class="tiny-hair"></div>
+            <div class="tiny-head"></div>
+            <div class="tiny-body"></div>
+        </div>
+
+        <span>STEFANIA</span>
+
+    </div>
+
+    <div class="room-family-person room-family-antonio">
+
+        <div class="tiny-person">
+            <div class="tiny-hair"></div>
+            <div class="tiny-head"></div>
+            <div class="tiny-body"></div>
+        </div>
+
+        <span>ANTONIO</span>
+
+    </div>
+
+    <div class="room-family-person room-family-gaspare">
+
+        <div class="tiny-person">
+            <div class="tiny-hair"></div>
+            <div class="tiny-head"></div>
+            <div class="tiny-body"></div>
+        </div>
+
+        <span>GASPARE</span>
+
+    </div>
+
+    <div class="room-family-person room-family-francesca">
+
+        <div class="tiny-person">
+            <div class="tiny-hair"></div>
+            <div class="tiny-head"></div>
+            <div class="tiny-body"></div>
+        </div>
+
+        <span>FRANCESCA</span>
+
+    </div>
+
+    <div class="room-family-person room-family-ludovica">
+
+        <div class="tiny-person">
+            <div class="tiny-hair"></div>
+            <div class="tiny-head"></div>
+            <div class="tiny-body"></div>
+        </div>
+
+        <span>LUDOVICA</span>
+
+    </div>
+
+</div>
 
 
                 <!-- messaggio -->
@@ -1136,75 +1291,88 @@
 
 
     <!-- INTRO -->
-
     <div id="roomIntro" class="overlay">
 
-        <div class="overlay-card">
+    <div class="overlay-card">
 
-            <div class="eyebrow">
-                LEVEL 04
-            </div>
-
-            <h2>
-                RICOSTRUISCI LA STANZA
-            </h2>
-
-            <p>
-                Un camino a sinistra.
-                Un divano a destra.
-                Al centro un tavolino,
-                due sedie e due tazzine di caffè.
-            </p>
-
-            <p>
-                E sopra di loro,
-                quel lampadario con il verde al centro.
-            </p>
-
-            <button id="startRoom" class="pixel-btn">
-                ▶ RICOSTRUISCI
-            </button>
-
+        <div class="eyebrow">
+            LEVEL 04
         </div>
+
+        <h2>
+            UNA CASA IN MINIATURA
+        </h2>
+
+        <p>
+            Quando erano ancora fidanzati,
+            papà costruì per mamma
+            una piccola casetta.
+        </p>
+
+        <p>
+            Un camino a sinistra,
+            un divano a destra,
+            al centro un tavolino,
+            due sedie, due tazzine di caffè
+            e quel lampadario con il verde al centro.
+        </p>
+
+        <p>
+            Ricostruiamola esattamente
+            come allora.
+        </p>
+
+        <button id="startRoom" class="pixel-btn">
+            ▶ RICOSTRUISCI
+        </button>
 
     </div>
 
+</div>
 
     <!-- COMPLETE -->
+<div id="roomComplete" class="overlay hidden">
 
-    <div id="roomComplete" class="overlay hidden">
+    <div class="overlay-card">
 
-        <div class="overlay-card">
-
-            <div class="eyebrow">
-                LEVEL 04 COMPLETE
-            </div>
-
-            <h2>
-                LUCE ACCESA!
-            </h2>
-
-            <div class="pixel-bulb">
-                ✦
-            </div>
-
-            <p>
-                Tutto è tornato al suo posto.
-            </p>
-
-            <p>
-                A volte bastano una stanza,
-                due sedie e un caffè
-                per conservare un ricordo.
-            </p>
-
-            <button id="finishRoom" class="pixel-btn">
-                SBLOCCA LEVEL 05 →
-            </button>
-
+        <div class="eyebrow">
+            LEVEL 04 COMPLETE
         </div>
 
+        <h2>
+            DA UNA PICCOLA CASA...
+        </h2>
+
+        <div class="pixel-bulb">
+            ✦
+        </div>
+
+        <p>
+            All'inizio era soltanto una casetta
+            costruita da papà per mamma
+            quando erano fidanzati.
+        </p>
+
+        <p>
+            Poi, anno dopo anno,
+            quella piccola casa è diventata
+            qualcosa di molto più grande.
+        </p>
+
+        <p>
+            Gaspare, Stefania, Francesca,
+            Antonio e Ludovica:
+            pezzo dopo pezzo avete costruito
+            la nostra casa vera.
+        </p>
+
+        <button id="finishRoom" class="pixel-btn">
+            SBLOCCA LEVEL 05 →
+        </button>
+
     </div>
+
+</div>
 
 </section>
 
