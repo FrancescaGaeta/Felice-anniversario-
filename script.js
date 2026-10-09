@@ -48,9 +48,6 @@ function hideOverlay(id) {
 function isTouchLayout() {
     return (
         window.matchMedia("(pointer: coarse)").matches ||
-        window.matchMedia("(hover: none)").matches ||
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0 ||
         window.innerWidth <= 750
     );
 }
@@ -90,8 +87,6 @@ function showScreen(id) {
 /* =========================================================
    BIGLIETTO
    ========================================================= */
-
-
 
 $("journeyBtn").addEventListener("click", () => {
 
@@ -379,7 +374,7 @@ function updateAidStage() {
 
         $("aidDescription").textContent =
             isTouchLayout()
-                ? "Tocca il disinfettante e poi la ferita."
+                ? "Trascina la bottiglietta sulla ferita."
                 : "Trascina la bottiglietta sulla ferita.";
 
         $("aidBubble").textContent =
@@ -437,7 +432,8 @@ function updateAidStage() {
 
 
 /* =========================================================
-   DRAG / TAP OGGETTI LEVEL 01
+   DRAG OGGETTI LEVEL 01
+   DESKTOP + TELEFONO
    ========================================================= */
 
 document
@@ -468,6 +464,8 @@ document
                     return;
                 }
 
+                event.preventDefault();
+
                 selectedTool = type;
 
                 document
@@ -477,23 +475,6 @@ document
                     });
 
                 tool.classList.add("selected");
-
-
-                /*
-                   SU TELEFONO:
-                   niente ghost da trascinare.
-                   Si seleziona l'oggetto e poi
-                   si tocca la ferita.
-                */
-
-                if (isTouchLayout()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                }
-
-
-                event.preventDefault();
 
                 const ghost =
                     document.createElement("div");
@@ -1755,6 +1736,7 @@ function resetRoom() {
 
 /* =========================================================
    ROOM — POINTER DOWN
+   DESKTOP + TELEFONO
    ========================================================= */
 
 document
@@ -1774,23 +1756,6 @@ document
                 ) {
                     return;
                 }
-
-
-                /*
-                   MOBILE:
-                   non parte il drag.
-                   Il primo tap seleziona.
-                */
-
-                if (isTouchLayout()) {
-
-                    event.preventDefault();
-
-                    selectRoomObject(source);
-
-                    return;
-                }
-
 
                 startRoomDrag(event);
 
@@ -1915,7 +1880,7 @@ function selectRoomObject(source) {
 
 
 /* =========================================================
-   DESKTOP DRAG
+   DRAG ROOM — DESKTOP + TELEFONO
    ========================================================= */
 
 function startRoomDrag(event) {
@@ -2379,22 +2344,9 @@ function openFamily() {
 
     showScreen("familyScreen");
 
-    /*
-       Prima chiudiamo esplicitamente
-       la schermata di completamento.
-    */
-
     hideOverlay("familyComplete");
 
-    /*
-       Reset del gioco.
-    */
-
     resetFamily();
-
-    /*
-       Solo dopo mostriamo l'introduzione.
-    */
 
     showOverlay("familyIntro");
 
@@ -2422,11 +2374,6 @@ function resetFamily() {
 
     foodTapSelected = false;
 
-
-    /* ---------------------------------------------------------
-       ELIMINA EVENTUALE GHOST
-       --------------------------------------------------------- */
-
     if (foodDrag && foodDrag.ghost) {
 
         foodDrag.ghost.remove();
@@ -2435,26 +2382,11 @@ function resetFamily() {
 
     foodDrag = null;
 
-
-    /* ---------------------------------------------------------
-       ASSICURATI CHE "CENA SERVITA" SIA CHIUSA
-       --------------------------------------------------------- */
-
     hideOverlay("familyComplete");
-
-
-    /* ---------------------------------------------------------
-       RESET CARTA
-       --------------------------------------------------------- */
 
     $("foodCard")
         .classList
         .remove("tap-selected");
-
-
-    /* ---------------------------------------------------------
-       RESET TARGET
-       --------------------------------------------------------- */
 
     document
         .querySelectorAll(".food-target")
@@ -2467,11 +2399,6 @@ function resetFamily() {
             );
 
         });
-
-
-    /* ---------------------------------------------------------
-       CARICA PRIMO PIATTO
-       --------------------------------------------------------- */
 
     loadFood();
 
@@ -2504,9 +2431,7 @@ function loadFood() {
         foods.length;
 
     $("foodFeedback").textContent =
-        isTouchLayout()
-            ? "TOCCA IL PIATTO, POI SCEGLI DOVE SERVIRLO"
-            : "TRASCINA IL PIATTO";
+        "TRASCINA IL PIATTO";
 
     $("foodCard")
         .classList
@@ -2522,7 +2447,7 @@ function loadFood() {
 
 
 /* =========================================================
-   FOOD — MOBILE TAP / DESKTOP DRAG
+   FOOD — DRAG DESKTOP + TELEFONO
    ========================================================= */
 
 $("foodCard")
@@ -2536,35 +2461,6 @@ $("foodCard")
             ) {
                 return;
             }
-
-
-            /*
-               MOBILE:
-               un tap seleziona il piatto.
-            */
-
-            if (isTouchLayout()) {
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                foodTapSelected = true;
-
-                $("foodCard")
-                    .classList
-                    .add("tap-selected");
-
-                $("foodFeedback")
-                    .textContent =
-                    "ORA TOCCA CHI DEVE MANGIARLO";
-
-                return;
-            }
-
-            /*
-               DESKTOP:
-               drag classico.
-            */
 
             event.preventDefault();
 
@@ -2590,41 +2486,6 @@ $("foodCard")
 
         }
     );
-
-
-document
-    .querySelectorAll(".food-target")
-    .forEach(target => {
-
-        target.addEventListener(
-            "pointerdown",
-            event => {
-
-                if (
-                    !isTouchLayout() ||
-                    !foodTapSelected ||
-                    !foodGameActive
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                foodTapSelected = false;
-
-                $("foodCard")
-                    .classList
-                    .remove("tap-selected");
-
-                checkFoodAnswer(
-                    target.dataset.foodTarget,
-                    target
-                );
-
-            }
-        );
-
-    });
 
 
 function moveFoodGhost(x, y) {
@@ -2866,15 +2727,12 @@ document.addEventListener(
     }
 );
 
+
 /* =========================================================
    INIZIALIZZAZIONE GENERALE
    ========================================================= */
 
 function initializeGame() {
-
-    /* ---------------------------------------------------------
-       STATO GENERALE
-       --------------------------------------------------------- */
 
     unlockedLevel = 1;
 
@@ -2888,11 +2746,6 @@ function initializeGame() {
     selectedRoomObject = null;
 
     foodTapSelected = false;
-
-
-    /* ---------------------------------------------------------
-       FERMA EVENTUALI TIMER / DRAG
-       --------------------------------------------------------- */
 
     stopRunner();
     stopCleaning();
@@ -2920,11 +2773,6 @@ function initializeGame() {
 
     foodDrag = null;
 
-
-    /* ---------------------------------------------------------
-       NASCONDI TUTTE LE SCHERMATE
-       --------------------------------------------------------- */
-
     screens.forEach(screenId => {
 
         const screen = $(screenId);
@@ -2934,11 +2782,6 @@ function initializeGame() {
         }
 
     });
-
-
-    /* ---------------------------------------------------------
-       CHIUDI TUTTI GLI OVERLAY DI COMPLETAMENTO
-       --------------------------------------------------------- */
 
     [
         "aidComplete",
@@ -2957,11 +2800,6 @@ function initializeGame() {
 
     });
 
-
-    /* ---------------------------------------------------------
-       RIPRISTINA GLI OVERLAY INTRO
-       --------------------------------------------------------- */
-
     [
         "aidIntro",
         "vespaIntro",
@@ -2978,12 +2816,6 @@ function initializeGame() {
 
     });
 
-
-    /* ---------------------------------------------------------
-       RESET LIVELLO FAMILY
-       IMPORTANTE: NON CHIAMARE loadFood() QUI
-       --------------------------------------------------------- */
-
     currentFood = 0;
     foodGameActive = false;
     foodTapSelected = false;
@@ -2998,21 +2830,11 @@ function initializeGame() {
             "TRASCINA IL PIATTO";
     }
 
-
-    /* ---------------------------------------------------------
-       RIPRISTINA BIGLIETTO
-       --------------------------------------------------------- */
-
     const cardScreen = $("cardScreen");
 
     if (cardScreen) {
         cardScreen.classList.add("active");
     }
-
-
-    /* ---------------------------------------------------------
-       RIPRISTINA COPERTINA
-       --------------------------------------------------------- */
 
     const paperCard = $("paperCard");
 
@@ -3028,17 +2850,7 @@ function initializeGame() {
 
     }
 
-
-    /* ---------------------------------------------------------
-       MAPPA
-       --------------------------------------------------------- */
-
     updateMap();
-
-
-    /* ---------------------------------------------------------
-       TORNA IN ALTO
-       --------------------------------------------------------- */
 
     window.scrollTo({
         top: 0,
