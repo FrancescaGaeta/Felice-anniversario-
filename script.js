@@ -48,6 +48,9 @@ function hideOverlay(id) {
 function isTouchLayout() {
     return (
         window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(hover: none)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
         window.innerWidth <= 750
     );
 }
@@ -484,6 +487,8 @@ document
                 */
 
                 if (isTouchLayout()) {
+                    event.preventDefault();
+                    event.stopPropagation();
                     return;
                 }
 
@@ -2541,6 +2546,7 @@ $("foodCard")
             if (isTouchLayout()) {
 
                 event.preventDefault();
+                event.stopPropagation();
 
                 foodTapSelected = true;
 
@@ -2554,7 +2560,6 @@ $("foodCard")
 
                 return;
             }
-
 
             /*
                DESKTOP:

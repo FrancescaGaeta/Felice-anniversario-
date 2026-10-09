@@ -4872,3 +4872,25 @@ input {
     }
 
 }
+
+@media (max-width: 750px) {
+
+    .food-card.tap-selected {
+        transform: translateY(-5px) scale(1.03);
+
+        border-color: #f2d15b;
+
+        box-shadow:
+            0 0 0 4px rgba(242, 209, 91, 0.2),
+            7px 7px #092938;
+    }
+
+    .aid-tool.selected {
+        border-color: #f2d15b;
+
+        background: #315e70;
+
+        transform: translateY(-3px);
+    }
+
+}
